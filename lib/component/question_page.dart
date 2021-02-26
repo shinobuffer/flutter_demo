@@ -13,7 +13,9 @@ class QuestionPage extends StatefulWidget {
 }
 
 class _QuestionPageState extends State<QuestionPage> {
-  ShapeBorder _bottomBtnShape = RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(12)));
+  ShapeBorder _bottomBtnShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+  );
   int _curIndex = 0;
   int _costSeconds = 0;
   Timer _timer;
@@ -213,7 +215,10 @@ class _QuestionPageState extends State<QuestionPage> {
                         shape: _bottomBtnShape,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [Icon(Icons.star_outline_rounded), Text('收藏')],
+                          children: [
+                            Icon(Icons.star_outline_rounded),
+                            Text('收藏'),
+                          ],
                         ),
                         onPressed: () {},
                       ),
