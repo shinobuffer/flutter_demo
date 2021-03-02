@@ -14,12 +14,11 @@ class Resp<T> {
 
   @override
   String toString() {
-    StringBuffer sb = new StringBuffer('{\n');
+    StringBuffer sb = new StringBuffer('==========>Resp<$T><==========\n');
     sb.write('"status":"$status"\n');
     sb.write(',"code":$code\n');
     sb.write(',"msg":"$msg"\n');
     sb.write(',"data":$data\n');
-    sb.write('}');
     return sb.toString();
   }
 }
@@ -111,7 +110,7 @@ class DioUtil {
     _dio?.interceptors?.add(element);
   }
 
-  /// 请求封装
+  /// 基本请求方法
   Future<Resp<T>> request<T>(
     String path, {
     String method,
@@ -119,9 +118,10 @@ class DioUtil {
     Map<String, dynamic> queryParameters,
     Options options,
     CancelToken cancelToken,
+    ProgressCallback onSendProgress,
   }) async {
     if (method != null && options != null) {
-      options.merge(method: method.toUpperCase());
+      options = options.merge(method: method.toUpperCase());
     }
 
     Response response = await _dio.request(
@@ -130,6 +130,7 @@ class DioUtil {
       queryParameters: queryParameters,
       options: options,
       cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
     );
     if (_isDebug) {
       _printHttpLog(response);
@@ -171,6 +172,64 @@ class DioUtil {
       error: 'statusCode: ${response.statusCode}, service error',
       type: DioErrorType.RESPONSE,
     ));
+  }
+
+  /// get方法封装
+  Future<Resp<T>> fetch<T>(
+    String path, {
+    Map<String, dynamic> queryParameters,
+    Options options,
+    CancelToken cancelToken,
+    ProgressCallback onSendProgress,
+  }) async {
+    return request(
+      path,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+    );
+  }
+
+  /// post方法封装
+  Future<Resp<T>> post<T>(
+    String path, {
+    data,
+    Map<String, dynamic> queryParameters,
+    Options options,
+    CancelToken cancelToken,
+    ProgressCallback onSendProgress,
+  }) async {
+    return request(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options.merge(
+        // todo: 这里考虑使用json？
+        contentType: 'application/x-www-form-urlencoded;charset=UTF-8',
+      ),
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+    );
+  }
+
+  /// upload方法封装
+  Future<Resp<T>> upload<T>(
+    String path, {
+    formData,
+    Map<String, dynamic> queryParameters,
+    Options options,
+    CancelToken cancelToken,
+    ProgressCallback onSendProgress,
+  }) async {
+    return request(
+      path,
+      data: formData,
+      queryParameters: queryParameters,
+      options: options.merge(contentType: 'multipart/form-data'),
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+    );
   }
 
   /// 日志打印

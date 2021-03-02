@@ -5,6 +5,36 @@ enum QuestionType {
 }
 
 class Question {
+  Question(Map<String, dynamic> json)
+      : assert(json['qid'] is int),
+        assert(json['content'] is String),
+        assert(json['choices'] is List<String>),
+        assert(json['correctChoices'] == null ||
+            json['correctChoices'] is List<int>),
+        assert(json['correctBlank'] == null || json['correctBlank'] is String),
+        qid = json['qid'],
+        content = json['content'],
+        choices = json['choices'],
+        correctChoices = json['correctChoices'] ?? [],
+        correctBlank = json['correctBlank'] ?? '' {
+    // 题目类型识别
+    switch (json['type']) {
+      case 1:
+        type = QuestionType.SingleChoice;
+        break;
+      case 2:
+        type = QuestionType.MultiChoice;
+        break;
+      case 3:
+        type = QuestionType.FillBlank;
+        break;
+      default:
+        throw ArgumentError("json[type] should be non-null");
+    }
+  }
+
+  Question.fromJson(Map<String, dynamic> json) : this(json);
+
   /// 题目id
   final int qid;
 
@@ -29,32 +59,6 @@ class Question {
   /// 错误填空
   String userBlank = '';
 
-  Question(Map question)
-      : assert(question['qid'] is int),
-        assert(question['content'] is String),
-        assert(question['choices'] is List<String>),
-        assert(question['correctChoices'] == null || question['correctChoices'] is List<int>),
-        assert(question['correctBlank'] == null || question['correctBlank'] is String),
-        qid = question['qid'],
-        content = question['content'],
-        choices = question['choices'],
-        correctChoices = question['correctChoices'] ?? [],
-        correctBlank = question['correctBlank'] ?? '' {
-    switch (question['type']) {
-      case 1:
-        type = QuestionType.SingleChoice;
-        break;
-      case 2:
-        type = QuestionType.MultiChoice;
-        break;
-      case 3:
-        type = QuestionType.FillBlank;
-        break;
-      default:
-        throw ArgumentError("question[type] should be non-null");
-    }
-  }
-
   bool get isFill {
     switch (type) {
       case QuestionType.SingleChoice:
@@ -71,7 +75,8 @@ class Question {
     switch (type) {
       case QuestionType.SingleChoice:
       case QuestionType.MultiChoice:
-        return userChoices.isNotEmpty && userChoices.toSet().containsAll(correctChoices);
+        return userChoices.isNotEmpty &&
+            userChoices.toSet().containsAll(correctChoices);
       case QuestionType.FillBlank:
         return true;
       default:
@@ -80,18 +85,45 @@ class Question {
   }
 
   void setChoices(List<int> choices) {
-    userChoices = choices;
+    if (type == QuestionType.SingleChoice || type == QuestionType.MultiChoice) {
+      userChoices = choices;
+    }
   }
 
   void setBlank(String blank) {
-    userBlank = blank;
+    if (type == QuestionType.FillBlank) {
+      userBlank = blank;
+    }
   }
 
-  Map<String, dynamic> toJson() => {};
+  Map<String, dynamic> toJson() => {
+        'qid': qid,
+        'type': type.index,
+        'content': content,
+        'choices': choices,
+        'correctChoices': correctChoices,
+        'correctBlank': correctBlank,
+        'userChoices': userChoices,
+        'userBlank': userBlank,
+      };
+
+  @override
+  String toString() {
+    StringBuffer sb = new StringBuffer('\n==========>Question<==========\n');
+    sb.write('"qid":$qid,\n');
+    sb.write('"type":$type,\n');
+    sb.write('"content":`$content`,\n');
+    sb.write('"choices":$choices,\n');
+    sb.write('"correctChoices":$correctChoices,\n');
+    sb.write('"correctBlank":`$correctBlank`,\n');
+    sb.write('"userChoices":$userChoices,\n');
+    sb.write('"userBlank":`$userBlank`,\n');
+    return sb.toString();
+  }
 }
 
 // void main(List<String> args) {
-//   Map question = {
+//   Map<String, dynamic> json = {
 //     'qid': 114514,
 //     'type': 1,
 //     'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
@@ -100,10 +132,9 @@ class Question {
 //     'correctBlank': '我的世界',
 //   };
 
-//   Question q = Question(question);
-//   print(q.isCorrect);
-//   print(q.isFill);
+//   Question q = Question(json);
 //   q.setChoices([1, 0]);
 //   print(q.isCorrect);
 //   print(q.isFill);
+//   print(q);
 // }
