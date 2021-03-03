@@ -7,7 +7,9 @@ class Test {
         name = json['name'],
         description = json['description'],
         subject = json['subject'],
+        subjectId = json['subjectId'],
         publisher = json['publisher'],
+        publisherId = json['publisherId'],
         isFree = json['isFree'],
         price = json['price'] {
     if (json['questions'] is List) {
@@ -31,13 +33,15 @@ class Test {
   /// 试卷描述
   final String description;
 
-  // todo: 这里考虑添加subject和publisher的ID
-
   /// 试卷科目
   final String subject;
 
+  final int subjectId;
+
   /// 出题者
   final String publisher;
+
+  final int publisherId;
 
   /// 是否免费
   final bool isFree;
@@ -54,7 +58,9 @@ class Test {
         'name': name,
         'description': description,
         'subject': subject,
+        'subjectId': subjectId,
         'publisher': publisher,
+        'publisherId': publisherId,
         'isFree': isFree,
         'price': price,
         'questions': questions,
@@ -83,13 +89,16 @@ class Test {
 //     'name': '2020年全国硕士研究生入学统一考试（政治）',
 //     'description': '2020年考研政治',
 //     'subject': '政治',
+//     'subjectId': 233,
 //     'publisher': '教育部',
+//     'publisherId': 233,
 //     'isFree': true,
 //     'price': 0.0,
 //     'questions': [
 //       {
 //         'qid': 114514,
 //         'type': 1,
+//         'chapter': '物质世界和实践——哲学概述',
 //         'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
 //         'choices': ['两个', '三个', '四个', '五个'],
 //         'correctChoices': [0, 1],
