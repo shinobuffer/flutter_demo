@@ -1,18 +1,18 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/component/base/icon_label_button.dart';
-import 'single_choice.dart';
+import 'question_page_view.dart';
 
-class QuestionPage extends StatefulWidget {
-  QuestionPage({Key key, this.title}) : super(key: key);
+class DoQuestionPage extends StatefulWidget {
+  DoQuestionPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _QuestionPageState createState() => _QuestionPageState();
+  _DoQuestionPageState createState() => _DoQuestionPageState();
 }
 
-class _QuestionPageState extends State<QuestionPage> {
+class _DoQuestionPageState extends State<DoQuestionPage> {
   ShapeBorder _bottomBtnShape = RoundedRectangleBorder(
     borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
   );
@@ -141,25 +141,30 @@ class _QuestionPageState extends State<QuestionPage> {
           centerTitle: true,
           actions: [
             Container(
-              padding: EdgeInsets.only(right: 15),
+              padding: EdgeInsets.only(right: 20),
               alignment: Alignment.center,
-              child: Text(
-                '$_curPage/2',
-              ),
+              child: Text('$_curPage/*'),
             )
           ],
         ),
         body: Container(
           height: double.maxFinite,
-          color: Colors.green[100],
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
                 //顶部Bar
                 height: 50,
-                color: Colors.black38,
                 alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      offset: Offset(0, 2),
+                      blurRadius: 2,
+                    )
+                  ],
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -168,18 +173,21 @@ class _QuestionPageState extends State<QuestionPage> {
                       '$_hour:$_minute:$_second',
                       iconSize: 20,
                       labelSize: 10,
+                      lineHeight: 1.5,
                     ),
                     IconLabelButton(
-                      Icons.list_alt_rounded,
+                      Icons.check_circle_outline_rounded,
                       '答题卡',
                       iconSize: 20,
                       labelSize: 10,
+                      lineHeight: 1.5,
                     ),
                     IconLabelButton(
                       Icons.feedback_outlined,
                       '纠错',
                       iconSize: 20,
                       labelSize: 10,
+                      lineHeight: 1.5,
                     ),
                   ],
                 ),
@@ -190,8 +198,15 @@ class _QuestionPageState extends State<QuestionPage> {
                   child: PageView(
                     controller: _pageController,
                     children: [
-                      SingleChoice(),
-                      SingleChoice(),
+                      QuestionPageView(
+                        pageType: QuestionPageViewTypes.doQuestion,
+                      ),
+                      QuestionPageView(
+                        pageType: QuestionPageViewTypes.wrongQuestion,
+                      ),
+                      QuestionPageView(
+                        pageType: QuestionPageViewTypes.collection,
+                      ),
                     ],
                     onPageChanged: (int index) {
                       setState(() {
@@ -210,8 +225,9 @@ class _QuestionPageState extends State<QuestionPage> {
                   children: [
                     Expanded(
                       flex: 1,
-                      child: FlatButton(
-                        color: Colors.white10,
+                      child: RaisedButton(
+                        color: Colors.white,
+                        elevation: 5,
                         shape: _bottomBtnShape,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -223,11 +239,12 @@ class _QuestionPageState extends State<QuestionPage> {
                         onPressed: () {},
                       ),
                     ),
-                    SizedBox(width: 20),
+                    SizedBox(width: 14),
                     Expanded(
                       flex: 2,
-                      child: FlatButton(
-                        color: Colors.white10,
+                      child: RaisedButton(
+                        color: Colors.white,
+                        elevation: 5,
                         shape: _bottomBtnShape,
                         child: Text('下一题|提交'),
                         onPressed: () {
@@ -249,29 +266,3 @@ class _QuestionPageState extends State<QuestionPage> {
     );
   }
 }
-
-// Widget oldTitle = Container(
-//   height: 56,
-//   color: Colors.black12,
-//   child: Row(
-//     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//     children: [
-//       IconButton(
-//         iconSize: 32,
-//         splashRadius: 28,
-//         icon: Icon(
-//           Icons.keyboard_arrow_left_rounded,
-//         ),
-//         onPressed: () => showInitDialog(context),
-//       ),
-//       Text(
-//         '2020数学Ⅰ考研真题',
-//         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//       ),
-//       Text(
-//         '0/2',
-//         style: TextStyle(color: Colors.teal),
-//       )
-//     ],
-//   ),
-// );

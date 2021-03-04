@@ -6,6 +6,7 @@ class IconLabelButton extends StatelessWidget {
   final double iconSize;
   final String label;
   final double labelSize;
+  final double lineHeight;
   final Color color;
   final Function onTap;
 
@@ -16,6 +17,7 @@ class IconLabelButton extends StatelessWidget {
     this.isHorizontal,
     this.iconSize,
     this.labelSize,
+    this.lineHeight,
     this.color,
     this.onTap,
   }) : super(key: key);
@@ -30,6 +32,7 @@ class IconLabelButton extends StatelessWidget {
     TextStyle _style = defaultTextStyle.style.merge(TextStyle(
       fontSize: labelSize,
       color: _color,
+      height: lineHeight ?? 1,
     ));
     return GestureDetector(
       onTap: onTap,

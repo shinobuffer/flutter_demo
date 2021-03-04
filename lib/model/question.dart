@@ -89,7 +89,7 @@ class Question {
     switch (type) {
       case QuestionType.SingleChoice:
       case QuestionType.MultiChoice:
-        return userChoices.isNotEmpty &&
+        return userChoices.length == correctChoices.length &&
             userChoices.toSet().containsAll(correctChoices);
       case QuestionType.FillBlank:
         return true;
@@ -98,10 +98,26 @@ class Question {
     }
   }
 
-  void setChoices(List<int> choices) {
-    if (type == QuestionType.SingleChoice || type == QuestionType.MultiChoice) {
-      userChoices = choices;
+  bool get isChoiceQuestion =>
+      (type == QuestionType.SingleChoice || type == QuestionType.MultiChoice);
+
+  bool containChoice(int choice) => userChoices.contains(choice);
+
+  void addChoice(int choice) {
+    if (isChoiceQuestion && !containChoice(choice)) {
+      userChoices.add(choice);
     }
+  }
+
+  void removeChoice(int choice) {
+    if (isChoiceQuestion && containChoice(choice)) {
+      userChoices.remove(choice);
+    }
+  }
+
+  void revertChoice(int choice) {
+    if (!isChoiceQuestion) return;
+    containChoice(choice) ? removeChoice(choice) : addChoice(choice);
   }
 
   void setBlank(String blank) {
@@ -153,7 +169,8 @@ class Question {
 //   };
 
 //   Question q = Question(json);
-//   q.setChoices([1, 0]);
+//   q.addChoice(1);
+//   q.addChoice(0);
 //   print(q.isCorrect);
 //   print(q.isFill);
 //   print(q);

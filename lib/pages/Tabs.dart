@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../component/question_page.dart';
+import '../component/do_question_page.dart';
 
 class HomeTabs extends StatefulWidget {
   HomeTabs({Key key}) : super(key: key);
@@ -30,13 +30,16 @@ class _HomeTabsState extends State<HomeTabs> {
     return BottomNavigationBar(
       currentIndex: curIndex,
       fixedColor: Color(0xff5abebc),
-      items: tabItems.map((e) => BottomNavigationBarItem(icon: Icon(e['icon']), label: e['label'])).toList(),
+      items: tabItems
+          .map((e) =>
+              BottomNavigationBarItem(icon: Icon(e['icon']), label: e['label']))
+          .toList(),
       onTap: (index) {
         if (index == 1) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => QuestionPage(
+              builder: (context) => DoQuestionPage(
                 title: '2020数学Ⅰ考研真题',
               ),
             ),
