@@ -13,9 +13,12 @@ class Test {
         isFree = json['isFree'],
         price = json['price'] {
     if (json['questions'] is List) {
-      questions = (json['questions'] as List<Map<String, dynamic>>)
+      List<Question> _ = (json['questions'] as List<Map<String, dynamic>>)
           .map((e) => new Question(e))
           .toList();
+      // 题目重排，按单选、多选、填空、简答顺序
+      _.sort((a, b) => a.type.index.compareTo(b.type.index));
+      _questions = _;
     }
   }
 
@@ -50,7 +53,9 @@ class Test {
   final double price;
 
   /// 试题
-  List<Question> questions = [];
+  List<Question> _questions = [];
+
+  List<Question> get questions => _questions;
 
   Map<String, dynamic> toJson() => {
         'tid': tid,

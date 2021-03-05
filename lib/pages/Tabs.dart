@@ -40,7 +40,7 @@ class _HomeTabsState extends State<HomeTabs> {
             context,
             MaterialPageRoute(
               builder: (context) => DoQuestionPage(
-                title: '2020数学Ⅰ考研真题',
+                tId: 233,
               ),
             ),
           );

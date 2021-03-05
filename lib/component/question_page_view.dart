@@ -9,23 +9,15 @@ enum QuestionPageViewTypes {
 }
 
 class QuestionPageView extends StatefulWidget {
-  // todo: 构造接收question
-  QuestionPageView({Key key, @required this.pageType}) : super(key: key);
+  QuestionPageView({
+    Key key,
+    @required this.pageType,
+    @required this.question,
+  }) : super(key: key);
 
-  final Question question = Question({
-    'qid': 114514,
-    'type': 1,
-    'chapter': '物质世界和实践——哲学概述',
-    'chapterId': 233,
-    'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
-    'choices': ['两个', '三个', '四个', '五个'],
-    'correctChoices': [0, 1],
-    'correctBlank': '我的世界',
-  });
+  final Question question;
 
   final QuestionPageViewTypes pageType;
-
-  final List<String> questionTypes = ['单选题', '多选题', '填空题', '简答题'];
 
   bool get isDoQuestion => pageType == QuestionPageViewTypes.doQuestion;
   bool get isWrongQuestion => pageType == QuestionPageViewTypes.wrongQuestion;
@@ -52,36 +44,73 @@ class _QuestionPageViewState extends State<QuestionPageView> {
 
   /// 渲染答题区
   Widget getAnswerArea() {
-    return ListView.separated(
-      physics: const NeverScrollableScrollPhysics(), //禁止滚动
-      shrinkWrap: true,
-      itemCount: question.choices.length,
-      separatorBuilder: (BuildContext context, int index) => Divider(height: 1),
-      itemBuilder: (BuildContext context, int index) {
-        return ListTile(
-          leading: Text(
-            _int2Char(index),
-            style: TextStyle(fontSize: 16),
-          ),
-          title: Transform(
-            transform: Matrix4.translationValues(-20, 0, 0),
-            child: Text(
-              question.choices[index],
-              maxLines: 2,
-              style: TextStyle(height: 1, fontSize: 15),
-              overflow: TextOverflow.ellipsis,
+    if (question.isChoiceQuestion) {
+      return ListView.separated(
+        physics: const NeverScrollableScrollPhysics(), //禁止滚动
+        shrinkWrap: true,
+        itemCount: question.choices.length,
+        separatorBuilder: (BuildContext context, int index) =>
+            Divider(height: 1),
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            leading: Text(
+              _int2Char(index),
+              style: TextStyle(fontSize: 16),
             ),
-          ),
-          dense: true,
-          enabled: widget.isDoQuestion,
-          selected: question.containChoice(index),
-          selectedTileColor: Color(0xFFE5F4F3),
-          onTap: () => setState(() {
-            question.revertChoice(index);
-          }),
-        );
-      },
-    );
+            title: Transform(
+              transform: Matrix4.translationValues(-20, 0, 0),
+              child: Text(
+                question.choices[index],
+                maxLines: 2,
+                style: TextStyle(height: 1, fontSize: 15),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            dense: true,
+            enabled: widget.isDoQuestion,
+            selected: question.containChoice(index),
+            selectedTileColor: Color(0xFFE5F4F3),
+            onTap: () => setState(() {
+              if (question.isMultiChoice) {
+                question.revertChoice(index);
+              } else if (question.isFill && question.containChoice(index)) {
+                question.revertChoice(index);
+              } else {
+                question
+                  ..clearChoice()
+                  ..addChoice(index);
+              }
+            }),
+          );
+        },
+      );
+    } else if (widget.isDoQuestion) {
+      return Container(
+        height: 110,
+        width: double.maxFinite,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              backgroundColor: ColorM.C2,
+              child: Icon(
+                Icons.description,
+                color: ColorM.C4,
+                size: 20,
+              ),
+            ),
+            SizedBox(height: 10),
+            Text(
+              '暂不支持该题型作答\n交卷后可查看解析',
+              textAlign: TextAlign.center,
+              style: TextStyleM.D1_14,
+            ),
+          ],
+        ),
+      );
+    } else {
+      return Container();
+    }
   }
 
   /// 渲染答案对比（收藏夹只显示正确答案，错题集显示正确答案和用户答案）
@@ -185,10 +214,12 @@ class _QuestionPageViewState extends State<QuestionPageView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${widget.questionTypes[question.type.index]}',
+                  '${QuestionStrTypes[question.type.index]}',
                   style: TextStyleM.D1_12,
                 ),
-                Text('    ${question.content}'),
+                Text(
+                  '    ${question.content}${question.isMultiChoice ? "(多选)" : ""}',
+                ),
               ],
             ),
           ),

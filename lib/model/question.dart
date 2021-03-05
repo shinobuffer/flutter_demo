@@ -4,6 +4,8 @@ enum QuestionType {
   FillBlank,
 }
 
+const List<String> QuestionStrTypes = ['单选题', '多选题', '填空题', '简答题'];
+
 class Question {
   Question(Map<String, dynamic> json)
       : assert(json['qid'] is int),
@@ -101,6 +103,10 @@ class Question {
   bool get isChoiceQuestion =>
       (type == QuestionType.SingleChoice || type == QuestionType.MultiChoice);
 
+  bool get isSingleChoice => type == QuestionType.SingleChoice;
+
+  bool get isMultiChoice => type == QuestionType.MultiChoice;
+
   bool containChoice(int choice) => userChoices.contains(choice);
 
   void addChoice(int choice) {
@@ -118,6 +124,10 @@ class Question {
   void revertChoice(int choice) {
     if (!isChoiceQuestion) return;
     containChoice(choice) ? removeChoice(choice) : addChoice(choice);
+  }
+
+  void clearChoice() {
+    userChoices.clear();
   }
 
   void setBlank(String blank) {
