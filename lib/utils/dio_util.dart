@@ -110,6 +110,13 @@ class DioUtil {
     _dio?.interceptors?.add(element);
   }
 
+  /// option检查
+  static Options checkOptions(String method, Options options) {
+    options ??= Options();
+    options.method = method ?? 'GET';
+    return options;
+  }
+
   /// 基本请求方法
   Future<Resp<T>> request<T>(
     String path, {
@@ -120,15 +127,11 @@ class DioUtil {
     CancelToken cancelToken,
     ProgressCallback onSendProgress,
   }) async {
-    if (method != null && options != null) {
-      options = options.merge(method: method.toUpperCase());
-    }
-
     Response response = await _dio.request(
       path,
       data: data,
       queryParameters: queryParameters,
-      options: options,
+      options: checkOptions(method, options),
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
     );
@@ -185,7 +188,7 @@ class DioUtil {
     return request(
       path,
       queryParameters: queryParameters,
-      options: options,
+      options: checkOptions('GET', options),
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
     );
@@ -204,10 +207,9 @@ class DioUtil {
       path,
       data: data,
       queryParameters: queryParameters,
-      options: options.merge(
-        // todo: 这里考虑使用json？
-        contentType: 'application/x-www-form-urlencoded;charset=UTF-8',
-      ),
+      options: checkOptions('POST', options).merge(
+          // todo: 这里考虑使用json？
+          contentType: 'application/x-www-form-urlencoded;charset=UTF-8'),
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
     );
@@ -226,7 +228,8 @@ class DioUtil {
       path,
       data: formData,
       queryParameters: queryParameters,
-      options: options.merge(contentType: 'multipart/form-data'),
+      options: checkOptions('POST', options)
+          .merge(contentType: 'multipart/form-data'),
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
     );
@@ -277,15 +280,24 @@ class DioUtil {
   }
 }
 
-// void main(List<String> args) async {
-//   // Dio dio = DioUtil.newDio(isDebug: true);
-//   // Response<Map> response = await dio.request(
-//   //   'https://oshinonya.com/apis/apiv10.php',
-//   //   queryParameters: {'s': 'python'},
-//   // );
+void main(List<String> args) async {
+  // Dio dio = DioUtil.newDio(isDebug: true);
+  // Response<String> res = await dio.post(
+  //   'http://123.56.118.226:9527/finaldesign/user/user/hi',
+  //   options: Options(
+  //     headers: {
+  //       'Authorization':
+  //           'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MTUwNTUyNTksInVzZXJfbmFtZSI6InJvb3QiLCJqdGkiOiJjODhiZjY1OS1kNWE5LTQ0NTctYWYwZC04MjNiM2NhODhkMTkiLCJjbGllbnRfaWQiOiJ1c2VyLXNlcnZpY2UiLCJzY29wZSI6WyJzZXJ2aWNlIl19.PwaJx55mTJXXLy7if3oC5vldglDJL_E20Gb_WLhl6RYw3LoP8foaNrB1H21LNIAoYr_YZlLQd-uhFSNKQIc5XkPM8lt5tNjVWVC4xF2IYY0FDgnqbJO754Sl99e_beXhcL4Jwq7dHvB996nqjcUp28UkzfDYAJ0yZn5dEyaOvJhXqO81HZHy-lDtThWuQWi-YreZkFNH4bAySWrBjL3sUP9xlJTQHniCYnVa6Vjjbi7b6FHeo7jLCZi2NpqUQR01rZWq2hs3RzQwcJ7N79m6fiF_ezeOKbycWkWwVky1lDc41b0BZsUIsAHWGEM-PDUBI9f0OSpNOqbzt-qN1pXd6w'
+  //     },
+  //   ),
+  // );
+  // print(res);
 
-//   // DioUtil.enableDebug();
-//   // DioUtil dio = DioUtil();
-//   // Resp<List> res = await dio.request('https://oshinonya.com/music/music.json');
-//   // print(res);
-// }
+  // DioUtil.enableDebug();
+  // DioUtil dio = DioUtil();
+  // Resp<Map> res = await dio.request(
+  //   'http://123.56.118.226:9527/finaldesign/user/user/login?username=root&password=root',
+  //   method: 'POST',
+  // );
+  // print(res);
+}

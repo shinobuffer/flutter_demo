@@ -1,3 +1,5 @@
+// import 'dart:convert';
+
 enum QuestionType {
   SingleChoice,
   MultiChoice,
@@ -12,7 +14,7 @@ class Question {
         assert(json['chapter'] is String),
         assert(json['chapterId'] is int),
         assert(json['content'] is String),
-        assert(json['choices'] is List<String>),
+        assert(json['choices'] == null || json['choices'] is List<String>),
         assert(json['correctChoices'] == null ||
             json['correctChoices'] is List<int>),
         assert(json['correctBlank'] == null || json['correctBlank'] is String),
@@ -21,19 +23,21 @@ class Question {
         chapter = json['chapter'],
         chapterId = json['chapterId'],
         content = json['content'],
-        choices = json['choices'],
-        correctChoices = json['correctChoices'] ?? [],
+        choices = json['choices']?.cast<String>() ?? [],
+        correctChoices = json['correctChoices']?.cast<int>() ?? [],
         correctBlank = json['correctBlank'] ?? '',
-        analysis = json['analysis'] {
+        analysis = json['analysis'],
+        userChoices = json['userChoices']?.cast<int>() ?? [],
+        userBlank = json['userBlank'] ?? '' {
     // 题目类型识别
     switch (json['type']) {
-      case 1:
+      case 0:
         type = QuestionType.SingleChoice;
         break;
-      case 2:
+      case 1:
         type = QuestionType.MultiChoice;
         break;
-      case 3:
+      case 2:
         type = QuestionType.FillBlank;
         break;
       default:
@@ -70,10 +74,10 @@ class Question {
   final String analysis;
 
   /// 用户选项
-  List<int> userChoices = [];
+  List<int> userChoices;
 
   /// 错误填空
-  String userBlank = '';
+  String userBlank;
 
   bool get isFill {
     switch (type) {
@@ -172,10 +176,11 @@ class Question {
 //     'qid': 114514,
 //     'type': 1,
 //     'chapter': '物质世界和实践——哲学概述',
+//     'chapterId': 233,
 //     'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
 //     'choices': ['两个', '三个', '四个', '五个'],
 //     'correctChoices': [0, 1],
-//     'correctBlank': '我的世界',
+//     'analysis': '无解析',
 //   };
 
 //   Question q = Question(json);
@@ -183,5 +188,5 @@ class Question {
 //   q.addChoice(0);
 //   print(q.isCorrect);
 //   print(q.isFill);
-//   print(q);
+//   print(Question.fromJson(jsonDecode(jsonEncode(q))));
 // }

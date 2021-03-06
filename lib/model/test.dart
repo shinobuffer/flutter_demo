@@ -1,7 +1,8 @@
+// import 'dart:convert';
 import './question.dart';
 
 class Test {
-  Test(Map<String, dynamic> json)
+  Test(Map<String, dynamic> json, {this.isRandomTest = false})
       : tid = json['tid'],
         time = json['time'],
         name = json['name'],
@@ -13,16 +14,17 @@ class Test {
         isFree = json['isFree'],
         price = json['price'] {
     if (json['questions'] is List) {
-      List<Question> _ = (json['questions'] as List<Map<String, dynamic>>)
-          .map((e) => new Question(e))
-          .toList();
+      List<Map<String, dynamic>> tmp =
+          json['questions']?.cast<Map<String, dynamic>>();
+      List<Question> _ = tmp.map((e) => new Question(e)).toList();
       // 题目重排，按单选、多选、填空、简答顺序
       _.sort((a, b) => a.type.index.compareTo(b.type.index));
       _questions = _;
     }
   }
 
-  Test.fromJson(Map<String, dynamic> json) : this(json);
+  Test.fromJson(Map<String, dynamic> json)
+      : this(json, isRandomTest: json['isRandomTest']);
 
   /// 试卷编号
   final int tid;
@@ -52,6 +54,9 @@ class Test {
   /// 售价
   final double price;
 
+  /// 随机试题，为true则tid、time、publisher、publisherId、isFree、price皆为null
+  final bool isRandomTest;
+
   /// 试题
   List<Question> _questions = [];
 
@@ -68,12 +73,13 @@ class Test {
         'publisherId': publisherId,
         'isFree': isFree,
         'price': price,
+        'isRandomTest': isRandomTest,
         'questions': questions,
       };
 
   @override
   String toString() {
-    StringBuffer sb = new StringBuffer('============>Test<============\n');
+    StringBuffer sb = new StringBuffer('\n============>Test<============\n');
     sb.write('"tid":$tid,\n');
     sb.write('"time":`$time`,\n');
     sb.write('"name":`$name`,\n');
@@ -82,6 +88,7 @@ class Test {
     sb.write('"publisher":`$publisher`,\n');
     sb.write('"isFree":$isFree,\n');
     sb.write('"price":$price,\n');
+    sb.write('"isRandomTest":$isRandomTest,\n');
     sb.write('"questions": $questions,\n');
     return sb.toString();
   }
@@ -102,15 +109,38 @@ class Test {
 //     'questions': [
 //       {
 //         'qid': 114514,
-//         'type': 1,
+//         'type': 0,
 //         'chapter': '物质世界和实践——哲学概述',
+//         'chapterId': 233,
 //         'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
 //         'choices': ['两个', '三个', '四个', '五个'],
-//         'correctChoices': [0, 1],
-//         'correctBlank': '我的世界',
+//         'correctChoices': [0],
+//         'userChoices': [0],
+//         'analysis': '无解析',
 //       },
+//       {
+//         'qid': 114514,
+//         'type': 1,
+//         'chapter': '物质世界和实践——哲学概述',
+//         'chapterId': 233,
+//         'content': '生骸村三贤包括？',
+//         'choices': ['维可', '袜子强', '贝拉弗', '嘛啊啊'],
+//         'correctChoices': [0, 1, 2],
+//         'userChoices': [0, 1, 2],
+//         'analysis': '无解析',
+//       },
+//       {
+//         'qid': 114514,
+//         'type': 1,
+//         'chapter': '物质世界和实践——哲学概述',
+//         'chapterId': 233,
+//         'content': '生骸村三贤包括？',
+//         'correctBlank': '维可、袜子强、贝拉弗',
+//         'userBlank': '555',
+//         'analysis': '无解析',
+//       }
 //     ],
 //   };
 //   Test test = new Test(json);
-//   print(test);
+//   print(Test.fromJson(jsonDecode(jsonEncode(test))));
 // }
