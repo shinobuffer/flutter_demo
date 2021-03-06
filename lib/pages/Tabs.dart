@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../component/do_question_page.dart';
+import 'learning/question_bank/do_question_page.dart';
 
 class HomeTabs extends StatefulWidget {
   HomeTabs({Key key}) : super(key: key);

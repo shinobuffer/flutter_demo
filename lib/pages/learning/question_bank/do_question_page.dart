@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/component/answer_card.dart';
 import 'package:flutter_demo/component/base/icon_label_button.dart';
 import 'package:flutter_demo/model/test.dart';
 import 'package:flutter_demo/utils/dialog_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
-import 'question_page_view.dart';
+import 'component/answer_card.dart';
+import 'component/question_page_view.dart';
 
 class DoQuestionPage extends StatefulWidget {
   DoQuestionPage({Key key, this.tId}) : super(key: key);
