@@ -43,13 +43,15 @@ class AnswerCard extends StatelessWidget {
   List<Widget> getSections() {
     List<Widget> sections = [];
     for (int i = 0; i < _breakPoints.length - 1; i++) {
+      String questionStrType =
+          QuestionStrTypes[questions[_breakPoints[i]].type.index];
       sections.add(Container(
         width: double.maxFinite,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(QuestionStrTypes[i]),
+            Text(questionStrType),
             Container(
               width: double.maxFinite,
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
@@ -60,32 +62,29 @@ class AnswerCard extends StatelessWidget {
               ),
               child: Wrap(
                 spacing: 10,
-                runSpacing: 10,
-                children: [
-                  ...List.generate(
-                    _breakPoints[i + 1] - _breakPoints[i],
-                    (index) {
-                      // 题目的真实下标
-                      int qIndex = index + _breakPoints[i];
-                      Question q = questions[qIndex];
-                      return SizedBox(
-                        height: 40,
-                        width: 40,
-                        child: FlatButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () => onJump(qIndex),
-                          child: Text(
-                            '${qIndex + 1}',
-                            style:
-                                q.isFill ? TextStyleM.D0_16 : TextStyleM.D4_16,
-                          ),
-                          color: q.isFill ? ColorM.G2 : ColorM.C1,
-                          shape: CircleBorder(),
+                runSpacing: 5,
+                children: List.generate(
+                  _breakPoints[i + 1] - _breakPoints[i],
+                  (index) {
+                    // 题目的真实下标
+                    int qIndex = index + _breakPoints[i];
+                    Question q = questions[qIndex];
+                    return SizedBox(
+                      height: 40,
+                      width: 40,
+                      child: FlatButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () => onJump(qIndex),
+                        child: Text(
+                          '${qIndex + 1}',
+                          style: q.isFill ? TextStyleM.D0_16 : TextStyleM.D4_16,
                         ),
-                      );
-                    },
-                  ),
-                ],
+                        color: q.isFill ? ColorM.G2 : ColorM.C1,
+                        shape: CircleBorder(),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ],
@@ -97,7 +96,6 @@ class AnswerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(Theme.of(context).primaryColorLight);
     return Container(
       height: ScreenUtil.getScreenH(context) - 100,
       child: Column(
@@ -121,7 +119,7 @@ class AnswerCard extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
                 child: Column(
-                  children: [...getSections()],
+                  children: getSections(),
                 ),
               ),
             ),
@@ -134,17 +132,19 @@ class AnswerCard extends StatelessWidget {
                 '交卷查看结果',
               ),
               onPressed: () async {
-                if (questions.any((q) => q.isChoiceQuestion && !q.isFill)) {
-                  bool confirmed = await showCancelOkDialog<bool>(
-                    context: context,
-                    title: '提醒',
-                    content: '还有$unfilledQuestionNum道选择题目未完成，是否继续提交？',
-                    onCancel: () => Navigator.pop(context, false),
-                    onOk: () => Navigator.pop(context, true),
-                  );
-                  if (confirmed is bool && confirmed) {
-                    onSubmit();
-                  }
+                String info =
+                    questions.any((q) => q.isChoiceQuestion && !q.isFill)
+                        ? '还有$unfilledQuestionNum道选择题目未完成，是否继续提交？'
+                        : '即将提交，是否继续提交？';
+                bool confirmed = await showCancelOkDialog<bool>(
+                  context: context,
+                  title: '提醒',
+                  content: info,
+                  onCancel: () => Navigator.pop(context, false),
+                  onOk: () => Navigator.pop(context, true),
+                );
+                if (confirmed is bool && confirmed) {
+                  onSubmit();
                 }
               },
             ),

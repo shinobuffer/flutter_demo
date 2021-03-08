@@ -2,22 +2,32 @@ import 'package:flutter/material.dart';
 
 class TextStyleM {
   static const TextStyle D0 = TextStyle(color: Colors.white);
+  static const TextStyle D0_12 = TextStyle(color: Colors.white, fontSize: 12);
   static const TextStyle D0_16 = TextStyle(color: Colors.white, fontSize: 16);
+  static const TextStyle D0_32_B =
+      TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold);
 
   static const TextStyle D1_12 =
       TextStyle(color: Color(0xFFCECECE), fontSize: 12);
-
   static const TextStyle D1_14 =
       TextStyle(color: Color(0xFFCECECE), fontSize: 14);
 
+  static const TextStyle D4 = TextStyle(color: Color(0xFFAAAAAA));
   static const TextStyle D4_16 =
       TextStyle(color: Color(0xFFAAAAAA), fontSize: 16);
 
+  static const TextStyle D5 = TextStyle(color: Color(0xFF7F7F7F));
+  static const TextStyle D5_10 =
+      TextStyle(color: Color(0xFF7F7F7F), fontSize: 10);
+
   static const TextStyle D7_13 =
       TextStyle(color: Color(0xFF333333), fontSize: 13);
-
+  static const TextStyle D7_14 =
+      TextStyle(color: Color(0xFF333333), fontSize: 14);
   static const TextStyle D7_18_B = TextStyle(
       color: Color(0xFF333333), fontSize: 18, fontWeight: FontWeight.bold);
+
+  static const TextStyle G1 = TextStyle(color: Color(0xFF55B9B0));
 }
 
 class ColorM {

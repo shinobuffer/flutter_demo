@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/utils/cookie_util.dart';
+import 'package:flutter_demo/utils/dio_util.dart';
 import 'learning/question_bank/do_question_page.dart';
 
 class HomeTabs extends StatefulWidget {
@@ -40,7 +42,7 @@ class _HomeTabsState extends State<HomeTabs> {
             context,
             MaterialPageRoute(
               builder: (context) => DoQuestionPage(
-                tId: 233,
+                tid: 233,
               ),
             ),
           );

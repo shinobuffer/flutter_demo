@@ -5,6 +5,7 @@ class ProgressBar extends StatelessWidget {
     Key key,
     @required this.width,
     this.height = 6,
+    this.margin,
     this.progress,
     this.backgroundColor,
     this.foregroundColor,
@@ -13,6 +14,7 @@ class ProgressBar extends StatelessWidget {
 
   final double height;
   final double width;
+  final EdgeInsetsGeometry margin;
   final double progress;
   final Color backgroundColor;
   final Color foregroundColor;
@@ -23,6 +25,7 @@ class ProgressBar extends StatelessWidget {
     return Container(
       height: height,
       width: width,
+      margin: margin,
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.all(Radius.circular(width)),

@@ -35,6 +35,7 @@ class IconLabelButton extends StatelessWidget {
       height: lineHeight ?? 1,
     ));
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

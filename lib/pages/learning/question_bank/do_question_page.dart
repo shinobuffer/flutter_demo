@@ -1,24 +1,29 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/component/base/icon_label_button.dart';
+import 'package:flutter_demo/model/record.dart';
 import 'package:flutter_demo/model/test.dart';
+import 'package:flutter_demo/pages/learning/question_bank/test_result_page.dart';
 import 'package:flutter_demo/utils/dialog_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 import 'component/answer_card.dart';
+import 'component/correction_feedback.dart';
 import 'component/question_page_view.dart';
 
 class DoQuestionPage extends StatefulWidget {
-  DoQuestionPage({Key key, this.tId}) : super(key: key);
+  DoQuestionPage({Key key, this.tid, this.rid}) : super(key: key);
 
-  final int tId;
+  final int tid;
+  final int rid;
 
   @override
   _DoQuestionPageState createState() => _DoQuestionPageState();
 }
 
 class _DoQuestionPageState extends State<DoQuestionPage> {
-  // todo: 请求或缓存获取试题数据
-  final Test test = new Test({
+  Record record;
+
+  Test test = new Test({
     'tid': 233,
     'time': '2020-11-11',
     'name': '2020年全国硕士研究生入学统一考试（政治）',
@@ -31,35 +36,37 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
     'price': 0.0,
     'questions': [
       {
-        'qid': 1,
-        'type': 1,
-        'chapter': '物质世界和实践——哲学概述1',
-        'chapterId': 231,
-        'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
-        'choices': ['两个', '三个', '四个', '五个'],
-        'correctChoices': [0],
-        'correctBlank': null,
-      },
-      {
-        'qid': 2,
-        'type': 2,
-        'chapter': '物质世界和实践——哲学概述2',
-        'chapterId': 232,
-        'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
-        'choices': ['两个', '三个', '四个', '五个'],
-        'correctChoices': [0, 1],
-        'correctBlank': null,
-      },
-      {
-        'qid': 3,
-        'type': 3,
-        'chapter': '物质世界和实践——哲学概述3',
+        'qid': 114514,
+        'type': 0,
+        'chapter': '物质世界和实践——哲学概述',
         'chapterId': 233,
         'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
         'choices': ['两个', '三个', '四个', '五个'],
-        'correctChoices': null,
-        'correctBlank': '两个',
+        'correctChoices': [0],
+        'userChoices': [0],
+        'analysis': '无解析',
       },
+      {
+        'qid': 114514,
+        'type': 1,
+        'chapter': '物质世界和实践——哲学概述',
+        'chapterId': 233,
+        'content': '生骸村三贤包括？',
+        'choices': ['维可', '袜子强', '贝拉弗', '嘛啊啊'],
+        'correctChoices': [0, 1, 2],
+        'userChoices': [0, 1, 2],
+        'analysis': '无解析',
+      },
+      {
+        'qid': 114514,
+        'type': 2,
+        'chapter': '物质世界和实践——哲学概述',
+        'chapterId': 233,
+        'content': '生骸村三贤包括？',
+        'correctBlank': '维可、袜子强、贝拉弗',
+        'userBlank': '555',
+        'analysis': '无解析',
+      }
     ],
   });
 
@@ -95,6 +102,10 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
   @override
   void initState() {
     super.initState();
+    // todo: 如果有rid，读取缓存获取record和record.test，恢复做题状态，提示继续做题
+    // 如果只有tid，请求test，创建record，提示开始做题
+    record = new Record(test: test);
+    print(record);
     // 等待context出来
     Future.delayed(Duration.zero, () => showInitDialog(context));
   }
@@ -161,7 +172,16 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
       body: AnswerCard(
         questions: test.questions,
         // todo: 提交试卷，跳转结果，记录本次测试
-        onSubmit: () {},
+        onSubmit: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TestResultPage(
+                record: record,
+              ),
+            ),
+          );
+        },
         onJump: (int index) {
           Navigator.pop(context);
           _pageController.animateToPage(
@@ -175,8 +195,20 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
     print(confirmed);
   }
 
+  // todo: 下面两个的逻辑都要填充
   /// 弹出纠错反馈
-  void popCorrectFeedback(BuildContext context) async {}
+  void popCorrectFeedback(BuildContext context) async {
+    await showBottomModal(
+      context: context,
+      backgroundColor: Colors.transparent,
+      dismissible: false,
+      dragable: false,
+      body: CorrectionFeedback(
+        name: test.questions[_curIndex].content,
+        qid: test.questions[_curIndex].qid,
+      ),
+    );
+  }
 
   /// 收藏题目
   void doCollect() {}
@@ -231,28 +263,34 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    IconLabelButton(
-                      Icons.timer_rounded,
-                      '$_hour:$_minute:$_second',
-                      iconSize: 20,
-                      labelSize: 10,
-                      lineHeight: 1.5,
+                    Expanded(
+                      child: IconLabelButton(
+                        Icons.timer_rounded,
+                        '$_hour:$_minute:$_second',
+                        iconSize: 20,
+                        labelSize: 10,
+                        lineHeight: 1.5,
+                      ),
                     ),
-                    IconLabelButton(
-                      Icons.check_circle_outline_rounded,
-                      '答题卡',
-                      iconSize: 20,
-                      labelSize: 10,
-                      lineHeight: 1.5,
-                      onTap: () => popAnswerCard(context),
+                    Expanded(
+                      child: IconLabelButton(
+                        Icons.check_circle_outline_rounded,
+                        '答题卡',
+                        iconSize: 20,
+                        labelSize: 10,
+                        lineHeight: 1.5,
+                        onTap: () => popAnswerCard(context),
+                      ),
                     ),
-                    IconLabelButton(
-                      Icons.feedback_outlined,
-                      '纠错',
-                      iconSize: 20,
-                      labelSize: 10,
-                      lineHeight: 1.5,
-                      onTap: () => popCorrectFeedback(context),
+                    Expanded(
+                      child: IconLabelButton(
+                        Icons.feedback_outlined,
+                        '纠错',
+                        iconSize: 20,
+                        labelSize: 10,
+                        lineHeight: 1.5,
+                        onTap: () => popCorrectFeedback(context),
+                      ),
                     ),
                   ],
                 ),
@@ -262,17 +300,15 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
                 child: Container(
                   child: PageView(
                     controller: _pageController,
-                    children: [
-                      ...test.questions
-                          .map(
-                            (q) => QuestionPageView(
-                              pageType: QuestionPageViewTypes.doQuestion,
-                              question: q,
-                            ),
-                          )
-                          .toList()
-                    ],
-                    onPageChanged: (int index) {
+                    children: test.questions
+                        .map(
+                          (q) => QuestionPageView(
+                            pageType: QuestionPageViewTypes.doQuestion,
+                            question: q,
+                          ),
+                        )
+                        .toList(),
+                    onPageChanged: (index) {
                       setState(() {
                         _curIndex = index;
                       });
@@ -300,7 +336,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
                             Text('收藏'),
                           ],
                         ),
-                        onPressed: () {},
+                        onPressed: doCollect,
                       ),
                     ),
                     SizedBox(width: 14),
