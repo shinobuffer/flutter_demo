@@ -127,7 +127,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
   }
 
   void showInitDialog(BuildContext context) async {
-    await showConfirmDialog(
+    bool confirmed = await showConfirmDialog<bool>(
       context: context,
       title: '${test.name}',
       content: Container(
@@ -140,12 +140,15 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
         ),
       ),
       confirmText: '开始做题',
-      allowReturn: false,
       onConfirm: () {
         starTimer();
-        Navigator.pop(context);
+        Navigator.pop(context, true);
       },
     );
+    // 退出做题
+    if (confirmed == null) {
+      Navigator.pop(context);
+    }
   }
 
   /// 退出做题
@@ -171,7 +174,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
       backgroundColor: ColorM.C1,
       body: AnswerCard(
         questions: test.questions,
-        // todo: 提交试卷，跳转结果，记录本次测试
+        // todo: 提交试卷，跳转结果，记录本次测试，做题累计（科目和总计）
         onSubmit: () {
           Navigator.push(
             context,
@@ -192,7 +195,6 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
         },
       ),
     );
-    print(confirmed);
   }
 
   // todo: 下面两个的逻辑都要填充
@@ -231,6 +233,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
     return WillPopScope(
       onWillPop: () async => doQuit(context),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text(test.name),
           centerTitle: true,

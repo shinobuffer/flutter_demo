@@ -234,7 +234,7 @@ packages:
     source: hosted
     version: "4.3.3"
   shared_preferences:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: shared_preferences
       url: "https://pub.flutter-io.cn"
@@ -287,6 +287,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.8.0-nullsafety.2"
+  sp_util:
+    dependency: "direct main"
+    description:
+      name: sp_util
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.2"
   stack_trace:
     dependency: transitive
     description:
@@ -308,6 +315,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0-nullsafety.1"
+  synchronized:
+    dependency: transitive
+    description:
+      name: synchronized
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.2.0+2"
   term_glyph:
     dependency: transitive
     description:

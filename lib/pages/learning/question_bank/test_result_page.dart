@@ -31,6 +31,23 @@ class TestResultPage extends StatelessWidget {
 
   List<Question> get questions => test.questions;
 
+  int get _costSeconds => record.costSeconds;
+
+  String get _second {
+    int _ = _costSeconds % 60;
+    return _ > 9 ? _.toString() : '0$_';
+  }
+
+  String get _minute {
+    int _ = _costSeconds % 3600 ~/ 60;
+    return _ > 9 ? _.toString() : '0$_';
+  }
+
+  String get _hour {
+    int _ = (_costSeconds ~/ 3600) % 24;
+    return _ > 9 ? _.toString() : '0$_';
+  }
+
   /// 题型下标分界点，用于划分题型
   List<int> _breakPoints;
 
@@ -200,6 +217,7 @@ class TestResultPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('${test.name}'),
+                    SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -238,7 +256,7 @@ class TestResultPage extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 10),
-                    Text('用时 00:30:33')
+                    Text('用时 $_hour:$_minute:$_second')
                   ],
                 ),
               ),

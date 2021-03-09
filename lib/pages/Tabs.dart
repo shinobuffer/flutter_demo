@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/utils/cookie_util.dart';
-import 'package:flutter_demo/utils/dio_util.dart';
 import 'learning/question_bank/do_question_page.dart';
+import 'learning/question_bank/question_bank_page.dart';
 
 class HomeTabs extends StatefulWidget {
   HomeTabs({Key key}) : super(key: key);
@@ -37,6 +36,12 @@ class _HomeTabsState extends State<HomeTabs> {
               BottomNavigationBarItem(icon: Icon(e['icon']), label: e['label']))
           .toList(),
       onTap: (index) {
+        if (index == 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => QuestionBankPage()),
+          );
+        }
         if (index == 1) {
           Navigator.push(
             context,
