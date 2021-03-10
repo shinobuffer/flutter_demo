@@ -146,9 +146,9 @@ class TestResultPage extends StatelessWidget {
                           onPressed: () {},
                           child: Text(
                             '${qIndex + 1}',
-                            style:
-                                q.isFill ? TextStyleM.D0_16 : TextStyleM.D4_16,
+                            style: TextStyle(fontSize: 16),
                           ),
+                          textColor: q.isFill ? Colors.white : ColorM.C4,
                           color: getColor(q.isFill, q.isCorrect),
                           shape: CircleBorder(),
                         ),
@@ -309,18 +309,24 @@ class TestResultPage extends StatelessWidget {
                   // todo: 逻辑待填充
                   Expanded(
                     child: FlatButton(
-                        onPressed: () {},
-                        child: Text('错题解析', style: TextStyleM.D5)),
+                      textColor: ColorM.C5,
+                      onPressed: () {},
+                      child: Text('错题解析'),
+                    ),
                   ),
                   Expanded(
                     child: FlatButton(
-                        onPressed: () {},
-                        child: Text('全部解析', style: TextStyleM.D5)),
+                      textColor: ColorM.C5,
+                      onPressed: () {},
+                      child: Text('全部解析'),
+                    ),
                   ),
                   Expanded(
                     child: FlatButton(
-                        onPressed: () {},
-                        child: Text('重新做题', style: TextStyleM.D5)),
+                      textColor: ColorM.C5,
+                      onPressed: () {},
+                      child: Text('重新做题'),
+                    ),
                   ),
                 ],
               ),

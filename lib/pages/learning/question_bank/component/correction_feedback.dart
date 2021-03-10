@@ -87,6 +87,7 @@ class _CorrectionFeedbackState extends State<CorrectionFeedback> {
                     decoration: InputDecoration(
                       hintText: '反馈错误（题目、选项、答案）',
                       fillColor: ColorM.C1,
+                      hintStyle: TextStyleM.D4,
                       filled: true,
                       contentPadding: EdgeInsets.all(10),
                       border: OutlineInputBorder(

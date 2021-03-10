@@ -77,8 +77,9 @@ class AnswerCard extends StatelessWidget {
                         onPressed: () => onJump(qIndex),
                         child: Text(
                           '${qIndex + 1}',
-                          style: q.isFill ? TextStyleM.D0_16 : TextStyleM.D4_16,
+                          style: TextStyle(fontSize: 16),
                         ),
+                        textColor: q.isFill ? Colors.white : ColorM.C4,
                         color: q.isFill ? ColorM.G2 : ColorM.C1,
                         shape: CircleBorder(),
                       ),
