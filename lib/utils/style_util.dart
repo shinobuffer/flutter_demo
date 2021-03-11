@@ -19,6 +19,8 @@ class TextStyleM {
   static const TextStyle D5 = TextStyle(color: Color(0xFF7F7F7F));
   static const TextStyle D5_10 =
       TextStyle(color: Color(0xFF7F7F7F), fontSize: 10);
+  static const TextStyle D5_12 =
+      TextStyle(color: Color(0xFF7F7F7F), fontSize: 12);
   static const TextStyle D5_24 =
       TextStyle(color: Color(0xFF7F7F7F), fontSize: 24);
 
@@ -34,6 +36,9 @@ class TextStyleM {
       TextStyle(color: Color(0xFF55B9B0), fontSize: 24);
   static const TextStyle G1_32 =
       TextStyle(color: Color(0xFF55B9B0), fontSize: 32);
+
+  static const TextStyle O1_B =
+      TextStyle(color: Color(0xFFF1A716), fontWeight: FontWeight.bold);
 }
 
 class ColorM {
@@ -48,7 +53,7 @@ class ColorM {
   //绿
   static const G1 = Color(0xFF70B603);
   static const G2 = Color(0xFF55B9B0); // 52B6AD
-
+  static const G3 = Color(0xFF7DCAC2);
   //红
   static const R1 = Color(0xFFEC808D);
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/pages/learning/question_bank/real_test/real_test_page.dart';
+import 'package:flutter_demo/pages/learning/question_bank/simulation_test/simulation_test_page.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
 class QuestionBankPageView extends StatefulWidget {
@@ -16,28 +18,23 @@ class QuestionBankPageView extends StatefulWidget {
 }
 
 class _QuestionBankPageViewState extends State<QuestionBankPageView> {
-  // todo: 拉取科目相关数据（做题数，正确率，学习天数等）
-
   Widget _createGridViewItem(
     IconData icon,
     String title,
     VoidCallback onPressed,
   ) {
     return FlatButton(
+      textColor: ColorM.C5,
       onPressed: onPressed,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             icon,
-            color: ColorM.C5,
             size: 32,
           ),
           SizedBox(height: 10),
-          Text(
-            title,
-            style: TextStyleM.D5,
-          ),
+          Text(title),
         ],
       ),
     );
@@ -51,13 +48,29 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
       children: [
         _createGridViewItem(Icons.loop_rounded, '随机练习', () {}),
-        _createGridViewItem(Icons.description_rounded, '历年真题', () {}),
-        _createGridViewItem(Icons.library_books_rounded, '模拟题', () {}),
+        _createGridViewItem(Icons.description_rounded, '历年真题', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => RealTestPage()),
+          );
+        }),
+        _createGridViewItem(Icons.library_books_rounded, '模拟题', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SimulationTestPage()),
+          );
+        }),
         _createGridViewItem(Icons.dangerous, '错题集', () {}),
         _createGridViewItem(Icons.star_rounded, '收藏夹', () {}),
         _createGridViewItem(Icons.access_time_rounded, '做题记录', () {}),
       ],
     );
+  }
+
+  // todo: 拉取科目相关数据（做题数，正确率，学习天数等）
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override

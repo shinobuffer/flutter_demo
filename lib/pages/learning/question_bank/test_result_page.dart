@@ -244,6 +244,7 @@ class TestResultPage extends StatelessWidget {
                           child: VerticalDivider(
                             width: 20,
                             color: Colors.white,
+                            thickness: 1,
                           ),
                         ),
                         Column(

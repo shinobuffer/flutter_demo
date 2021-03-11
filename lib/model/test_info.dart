@@ -8,6 +8,7 @@ class TestInfo {
         subjectId = json['subjectId'],
         publisher = json['publisher'],
         publisherId = json['publisherId'],
+        isRealTest = json['isRealTest'],
         isFree = json['isFree'],
         price = json['price'],
         questionNum = json['questionNum'],
@@ -37,6 +38,9 @@ class TestInfo {
 
   final int publisherId;
 
+  /// 是否真题
+  final bool isRealTest;
+
   /// 是否免费
   final bool isFree;
 
@@ -58,6 +62,7 @@ class TestInfo {
     sb.write('"description":`$description`,\n');
     sb.write('"subject":`$subject`,\n');
     sb.write('"publisher":`$publisher`,\n');
+    sb.write('"isRealTest":$isRealTest,\n');
     sb.write('"isFree":$isFree,\n');
     sb.write('"price":$price,\n');
     sb.write('"questionNum":$questionNum,\n');

@@ -4,6 +4,7 @@ class ImageSets {
   ImageSets._();
   static const String bcoin = 'assets/images/bcoin.png';
   static const String gold_seed = 'assets/images/gseed.png';
+  static const String no_data = 'assets/images/nodata.png';
 }
 
 class ImageSet extends StatelessWidget {

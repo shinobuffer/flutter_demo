@@ -100,17 +100,6 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    // todo: 如果有rid，读取缓存获取record和record.test，恢复做题状态，提示继续做题
-    // 如果只有tid，请求test，创建record，提示开始做题
-    record = new Record(test: test);
-    print(record);
-    // 等待context出来
-    Future.delayed(Duration.zero, () => showInitDialog(context));
-  }
-
-  @override
   void dispose() {
     super.dispose();
     _timer?.cancel();
@@ -226,6 +215,17 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
         curve: Curves.easeInOut,
       );
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // todo: 如果有rid，读取缓存获取record和record.test，恢复做题状态，提示继续做题
+    // 如果只有tid，请求test，创建record，提示开始做题
+    record = new Record(test: test);
+    print(record);
+    // 等待context出来
+    Future.delayed(Duration.zero, () => showInitDialog(context));
   }
 
   @override

@@ -11,6 +11,7 @@ class Test {
         subjectId = json['subjectId'],
         publisher = json['publisher'],
         publisherId = json['publisherId'],
+        isRealTest = json['isRealTest'],
         isFree = json['isFree'],
         price = json['price'] {
     if (json['questions'] is List) {
@@ -48,6 +49,9 @@ class Test {
 
   final int publisherId;
 
+  /// 是否真题
+  final bool isRealTest;
+
   /// 是否免费
   final bool isFree;
 
@@ -71,6 +75,7 @@ class Test {
         'subjectId': subjectId,
         'publisher': publisher,
         'publisherId': publisherId,
+        'isRealTest': isRealTest,
         'isFree': isFree,
         'price': price,
         'isRandomTest': isRandomTest,
@@ -86,6 +91,7 @@ class Test {
     sb.write('"description":`$description`,\n');
     sb.write('"subject":`$subject`,\n');
     sb.write('"publisher":`$publisher`,\n');
+    sb.write('"isRealTest":$isRealTest,\n');
     sb.write('"isFree":$isFree,\n');
     sb.write('"price":$price,\n');
     sb.write('"isRandomTest":$isRandomTest,\n');
