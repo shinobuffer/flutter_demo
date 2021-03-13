@@ -1,8 +1,15 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_demo/pages/learning/learning_page_view.dart';
+import 'package:flutter_demo/pages/learning/question_bank/do_question_page.dart';
+import 'package:flutter_demo/pages/learning/question_bank/question_bank_page.dart';
+import 'package:flutter_demo/pages/learning/question_bank/real_test/real_test_page.dart';
+import 'package:flutter_demo/pages/learning/question_bank/simulation_test/simulation_test_page.dart';
+import 'package:flutter_demo/pages/learning/task/task_page.dart';
 import 'package:flutter_demo/provide/global_provide.dart';
+import 'package:flutter_demo/utils/style_util.dart';
 import 'package:provider/provider.dart';
-import 'pages/home_tabs.dart';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -17,68 +24,113 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      builder: BotToastInit(),
+      navigatorObservers: [BotToastNavigatorObserver()],
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.teal,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      routes: {
+        '/question_bank': (context) => QuestionBankPage(),
+        '/task': (context) => TaskPage(),
+        '/question_bank/real_test': (context) => RealTestPage(),
+        '/question_bank/simulation_test': (context) => SimulationTestPage(),
+      },
       // 全局状态配置
       home: ChangeNotifierProvider(
         create: (_) => GlobalProvide(),
-        child: MyHomePage(title: 'Flutter Demo Home Page'),
+        child: Home(),
       ),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
+class Home extends StatefulWidget {
+  Home({Key key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _HomeState createState() => _HomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _HomeState extends State<Home> {
+  static const List<Map<String, dynamic>> tabItems = [
+    {
+      'icon': Icons.menu_book_rounded,
+      'label': '学习',
+    },
+    {
+      'icon': Icons.explore,
+      'label': '发现',
+    },
+    {
+      'icon': Icons.account_circle_rounded,
+      'label': '我的',
+    },
+  ];
 
-  void _incrementCounter() {
+  int _curIndex = 0;
+
+  Widget _curBody = LearningPageView();
+  DateTime _lastQuitTime;
+
+  void _onBarTap(int index) {
+    if (_curIndex == index) return;
+    switch (index) {
+      case 0:
+        break;
+      case 1:
+        break;
+      case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DoQuestionPage(
+              tid: 233,
+            ),
+          ),
+        );
+        break;
+    }
     setState(() {
-      _counter++;
+      _curIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                'You have pushed the button this many times:',
+      body: WillPopScope(
+        // 退出确认
+        onWillPop: () async {
+          if (_lastQuitTime == null ||
+              DateTime.now().difference(_lastQuitTime).inSeconds > 1) {
+            BotToast.showText(
+              text: '再按一次退出',
+              contentColor: Colors.black45,
+              borderRadius: BorderRadius.all(
+                Radius.circular(5),
               ),
-              Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headline4,
-              ),
-            ],
-          ),
-        ),
+            );
+            _lastQuitTime = DateTime.now();
+            return false;
+          } else {
+            await SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+            return true;
+          }
+        },
+        child: _curBody,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: _onBarTap,
+        currentIndex: _curIndex,
+        fixedColor: ColorM.G2,
+        items: tabItems
+            .map((e) => BottomNavigationBarItem(
+                icon: Icon(e['icon']), label: e['label']))
+            .toList(),
       ),
-      bottomNavigationBar:
-          HomeTabs(), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
