@@ -158,7 +158,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
 
   /// 弹出答题卡
   void popAnswerCard(BuildContext context) async {
-    bool confirmed = await showBottomModal<bool>(
+    await showBottomModal<bool>(
       context: context,
       backgroundColor: ColorM.C1,
       body: AnswerCard(

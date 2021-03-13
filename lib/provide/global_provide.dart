@@ -2,13 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class GlobalProvide with ChangeNotifier {
-  /// 用户全局token
+  /// 全局用户token
   String _token;
+
+  /// 全局登录状态
+  bool _isLogin = false;
 
   String get token => _token ?? '';
 
+  bool get isLogin => _isLogin;
+
   void setToken(String token) {
     _token = token;
+    notifyListeners();
+  }
+
+  void setIsLogin(bool isLogin) {
+    _isLogin = isLogin;
     notifyListeners();
   }
 }

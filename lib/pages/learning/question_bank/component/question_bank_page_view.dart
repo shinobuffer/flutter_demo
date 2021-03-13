@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/pages/learning/question_bank/real_test/real_test_page.dart';
-import 'package:flutter_demo/pages/learning/question_bank/simulation_test/simulation_test_page.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
 class QuestionBankPageView extends StatefulWidget {
@@ -49,15 +47,15 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
       children: [
         _createGridViewItem(Icons.loop_rounded, '随机练习', () {}),
         _createGridViewItem(Icons.description_rounded, '历年真题', () {
-          Navigator.push(
+          Navigator.pushNamed(
             context,
-            MaterialPageRoute(builder: (context) => RealTestPage()),
+            '/question_bank/real_test',
           );
         }),
         _createGridViewItem(Icons.library_books_rounded, '模拟题', () {
-          Navigator.push(
+          Navigator.pushNamed(
             context,
-            MaterialPageRoute(builder: (context) => SimulationTestPage()),
+            '/question_bank/simulation_test',
           );
         }),
         _createGridViewItem(Icons.dangerous, '错题集', () {}),

@@ -24,14 +24,11 @@ class QuestionPageView extends StatefulWidget {
   bool get isCollection => pageType == QuestionPageViewTypes.collection;
 
   @override
-  _QuestionPageViewState createState() =>
-      _QuestionPageViewState(question: question);
+  _QuestionPageViewState createState() => _QuestionPageViewState();
 }
 
 class _QuestionPageViewState extends State<QuestionPageView> {
-  _QuestionPageViewState({@required this.question});
-
-  final Question question;
+  Question get question => widget.question;
 
   String _int2Char(int index) {
     return String.fromCharCodes([65 + index]);
