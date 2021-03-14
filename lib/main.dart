@@ -3,11 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo/pages/learning/learning_page_view.dart';
 import 'package:flutter_demo/pages/learning/question_bank/do_question_page.dart';
-import 'package:flutter_demo/pages/learning/question_bank/question_bank_page.dart';
-import 'package:flutter_demo/pages/learning/question_bank/real_test/real_test_page.dart';
-import 'package:flutter_demo/pages/learning/question_bank/simulation_test/simulation_test_page.dart';
-import 'package:flutter_demo/pages/learning/task/task_page.dart';
 import 'package:flutter_demo/provide/global_provide.dart';
+import 'package:flutter_demo/route.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 import 'package:provider/provider.dart';
 
@@ -32,12 +29,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.teal,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      routes: {
-        '/question_bank': (context) => QuestionBankPage(),
-        '/task': (context) => TaskPage(),
-        '/question_bank/real_test': (context) => RealTestPage(),
-        '/question_bank/simulation_test': (context) => SimulationTestPage(),
-      },
+      // 路由配置
+      onGenerateRoute: onGenerateRoute,
       // 全局状态配置
       home: ChangeNotifierProvider(
         create: (_) => GlobalProvide(),

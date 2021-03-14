@@ -39,6 +39,10 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
   }
 
   Widget _getGridView() {
+    Map<String, dynamic> arguments = {
+      'subject': widget.subject,
+      'subjectId': widget.subjectId
+    };
     // todo: 逻辑填充
     return GridView(
       physics: const NeverScrollableScrollPhysics(), //禁止滚动
@@ -50,16 +54,30 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
           Navigator.pushNamed(
             context,
             '/question_bank/real_test',
+            arguments: arguments,
           );
         }),
         _createGridViewItem(Icons.library_books_rounded, '模拟题', () {
           Navigator.pushNamed(
             context,
             '/question_bank/simulation_test',
+            arguments: arguments,
           );
         }),
-        _createGridViewItem(Icons.dangerous, '错题集', () {}),
-        _createGridViewItem(Icons.star_rounded, '收藏夹', () {}),
+        _createGridViewItem(Icons.dangerous, '错题集', () {
+          Navigator.pushNamed(
+            context,
+            '/question_bank/wrong_test',
+            arguments: arguments,
+          );
+        }),
+        _createGridViewItem(Icons.star_rounded, '收藏夹', () {
+          Navigator.pushNamed(
+            context,
+            '/question_bank/collect_test',
+            arguments: arguments,
+          );
+        }),
         _createGridViewItem(Icons.access_time_rounded, '做题记录', () {}),
       ],
     );

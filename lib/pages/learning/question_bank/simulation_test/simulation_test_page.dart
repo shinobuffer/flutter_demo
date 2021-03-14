@@ -7,7 +7,9 @@ import 'package:flutter_demo/utils/style_util.dart';
 
 class SimulationTestPage extends StatefulWidget {
   /// 模拟题库页面
-  SimulationTestPage({Key key}) : super(key: key);
+  SimulationTestPage({Key key, this.arguments}) : super(key: key);
+
+  final arguments;
 
   @override
   _SimulationTestPageState createState() => _SimulationTestPageState();
@@ -15,10 +17,42 @@ class SimulationTestPage extends StatefulWidget {
 
 class _SimulationTestPageState extends State<SimulationTestPage>
     with SearchBoxMixin {
+  String get subject => widget.arguments['subject'] as String;
+  int get subjectId => widget.arguments['subjectId'] as int;
   // todo: 拉取已购和未购试题信息 purchasedTestInfos、moreTestInfos
-  List<TestInfo> purchasedTestInfos;
+  List<TestInfo> purchasedTestInfos = [
+    TestInfo.fromJson({
+      'tid': 233,
+      'time': '2020-11-11',
+      'name': '2020年全国硕士研究生入学统一考试（政治）',
+      'description': '2020年考研政治',
+      'subject': '政治',
+      'subjectId': 233,
+      'publisher': '教育部',
+      'publisherId': 233,
+      'isFree': true,
+      'price': 0.0,
+      'questionNum': 50,
+      'doneNum': 2333,
+    }),
+  ];
 
-  List<TestInfo> moreTestInfos;
+  List<TestInfo> moreTestInfos = [
+    TestInfo.fromJson({
+      'tid': 233,
+      'time': '2020-11-11',
+      'name': '2020年全国硕士研究生入学统一考试（政治）',
+      'description': '2020年考研政治',
+      'subject': '政治',
+      'subjectId': 233,
+      'publisher': '教育部',
+      'publisherId': 233,
+      'isFree': true,
+      'price': 0.0,
+      'questionNum': 50,
+      'doneNum': 2333,
+    }),
+  ];
 
   List<TestInfo> curPurchasedTestInfos = [
     TestInfo.fromJson({
@@ -37,21 +71,43 @@ class _SimulationTestPageState extends State<SimulationTestPage>
     }),
   ];
 
-  List<TestInfo> curMoreTestInfos = [];
+  List<TestInfo> curMoreTestInfos = [
+    TestInfo.fromJson({
+      'tid': 233,
+      'time': '2020-11-11',
+      'name': '2020年全国硕士研究生入学统一考试（政治）',
+      'description': '2020年考研政治',
+      'subject': '政治',
+      'subjectId': 233,
+      'publisher': '教育部',
+      'publisherId': 233,
+      'isFree': true,
+      'price': 0.0,
+      'questionNum': 50,
+      'doneNum': 2333,
+    }),
+  ];
 
-  /// todo: 取消搜索，恢复数据
+  /// 取消搜索，恢复数据
   @override
   void onCancelSearch() {
     setState(() {
+      curPurchasedTestInfos = purchasedTestInfos;
+      curMoreTestInfos = moreTestInfos;
       curSearch = searchController.text = '';
     });
   }
 
-  /// todo: 触发搜索，拉取数据
+  /// 触发搜索，过滤数据
   @override
   void onSearch(String search) {
     if (curSearch != search) {
       setState(() {
+        curPurchasedTestInfos = purchasedTestInfos
+            .where((info) => info.name.contains(search))
+            .toList();
+        curMoreTestInfos =
+            moreTestInfos.where((info) => info.name.contains(search)).toList();
         curSearch = search;
       });
     }
@@ -138,7 +194,7 @@ class _SimulationTestPageState extends State<SimulationTestPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('模拟题'),
+        title: Text('模拟题($subject'),
         centerTitle: true,
       ),
       body: GestureDetector(
