@@ -78,7 +78,13 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
             arguments: arguments,
           );
         }),
-        _createGridViewItem(Icons.access_time_rounded, '做题记录', () {}),
+        _createGridViewItem(Icons.access_time_rounded, '做题记录', () {
+          Navigator.pushNamed(
+            context,
+            '/question_bank/record_test',
+            arguments: arguments,
+          );
+        }),
       ],
     );
   }

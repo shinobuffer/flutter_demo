@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/pages/learning/question_bank/component/question_bank_page_view.dart';
+import 'package:flutter_demo/pages/learning/question_bank/component/subject_selector.dart';
+import 'package:flutter_demo/utils/dialog_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
 class QuestionBankPage extends StatefulWidget {
@@ -12,10 +14,25 @@ class QuestionBankPage extends StatefulWidget {
 class _QuestionBankPageState extends State<QuestionBankPage> {
   TabController _controller;
 
-  // todo: 获取预设科目
+  // todo: 获取预设科目，如果没有科目，跳转至选择科目
   Map<int, String> subjectMap = {0: '政治', 1: '英语', 11: '计算机'};
 
   List<int> get subjectKeys => subjectMap.keys.toList();
+
+  /// 学科修改
+  void popSubjectSelector({bool allowReturn = false}) async {
+    bool needRefresh = await showBottomModal<bool>(
+      context: context,
+      backgroundColor: ColorM.C1,
+      body: SubjectSelector(),
+      dismissible: false,
+      dragable: false,
+    );
+    if (needRefresh is bool && needRefresh) {
+      // todo 更新科目
+      setState(() {});
+    }
+  }
 
   @override
   void initState() {
@@ -38,9 +55,7 @@ class _QuestionBankPageState extends State<QuestionBankPage> {
             icon: Icon(
               Icons.playlist_add_rounded,
             ),
-            onPressed: () {
-              // todo: 修改学科
-            },
+            onPressed: popSubjectSelector,
           )
         ],
         // 魔改TabBar的高度和背景

@@ -4,7 +4,7 @@ import 'package:flutter_demo/utils/dialog_util.dart';
 import 'package:flutter_demo/utils/screen_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
-typedef OnJump = void Function(int index);
+typedef void OnJump(int index);
 
 // ignore: must_be_immutable
 class AnswerCard extends StatelessWidget {
@@ -103,7 +103,6 @@ class AnswerCard extends StatelessWidget {
         children: [
           Container(
             height: 44,
-            width: double.maxFinite,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               border: Border(

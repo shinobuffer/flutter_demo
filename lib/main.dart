@@ -6,6 +6,7 @@ import 'package:flutter_demo/pages/learning/question_bank/do_question_page.dart'
 import 'package:flutter_demo/provide/global_provide.dart';
 import 'package:flutter_demo/route.dart';
 import 'package:flutter_demo/utils/style_util.dart';
+import 'package:flutter_demo/utils/toast_util.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -99,13 +100,7 @@ class _HomeState extends State<Home> {
         onWillPop: () async {
           if (_lastQuitTime == null ||
               DateTime.now().difference(_lastQuitTime).inSeconds > 1) {
-            BotToast.showText(
-              text: '再按一次退出',
-              contentColor: Colors.black45,
-              borderRadius: BorderRadius.all(
-                Radius.circular(5),
-              ),
-            );
+            ToastUtil.showText(text: '再按一次退出');
             _lastQuitTime = DateTime.now();
             return false;
           } else {

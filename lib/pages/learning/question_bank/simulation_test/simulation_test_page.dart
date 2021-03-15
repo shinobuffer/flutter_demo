@@ -194,7 +194,7 @@ class _SimulationTestPageState extends State<SimulationTestPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('模拟题($subject'),
+        title: Text('模拟题($subject)'),
         centerTitle: true,
       ),
       body: GestureDetector(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/pages/learning/question_bank/collect_test/collect_test_page.dart';
 import 'package:flutter_demo/pages/learning/question_bank/question_bank_page.dart';
 import 'package:flutter_demo/pages/learning/question_bank/real_test/real_test_page.dart';
+import 'package:flutter_demo/pages/learning/question_bank/record_test/record_test_page.dart';
 import 'package:flutter_demo/pages/learning/question_bank/simulation_test/simulation_test_page.dart';
 import 'package:flutter_demo/pages/learning/question_bank/wrong_test/wrong_test_page.dart';
 import 'package:flutter_demo/pages/learning/task/task_page.dart';
@@ -20,6 +21,8 @@ final Map<String, PageBuilder> _routes = {
       WrongTestPage(arguments: arguments),
   '/question_bank/collect_test': (context, {arguments}) =>
       CollectTestPage(arguments: arguments),
+  '/question_bank/record_test': (context, {arguments}) =>
+      RecordTestPage(arguments: arguments),
 };
 
 final RouteFactory onGenerateRoute = (RouteSettings settings) {
