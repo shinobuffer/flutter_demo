@@ -80,9 +80,7 @@ class _HomeState extends State<Home> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DoQuestionPage(
-              tid: 233,
-            ),
+            builder: (context) => DoQuestionPage(),
           ),
         );
         break;

@@ -170,6 +170,7 @@ class _WrongQuestionPageState extends State<WrongQuestionPage> {
 
   @override
   void initState() {
+    // todo: 需要通过tid拉取错误的questions（需要带userAnswer，由后端合成或前端合成）
     super.initState();
   }
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/component/no_data_tip.dart';
 import 'package:flutter_demo/model/record_item.dart';
 import 'package:flutter_demo/pages/learning/question_bank/do_question_page.dart';
-import 'package:flutter_demo/pages/learning/question_bank/test_result_page.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
 class RecordTestPage extends StatefulWidget {
@@ -22,23 +21,31 @@ class _RecordTestPageState extends State<RecordTestPage> {
   List<RecordItem> recordItems = [
     RecordItem.fromJson({
       'rid': 233,
+      'costSeconds': 233,
+      'isCompleted': false,
       'tid': 233,
       'name': '2020年全国硕士研究生入学统一考试',
-      'isCompleted': false,
+      'description': '2020国考',
+      'subject': '政治',
+      'subjectId': 0,
       'timeStamp': DateTime.now().millisecondsSinceEpoch,
       'doneNum': 23,
       'questionNum': 50,
-      'correctRate': .5
+      'correctRate': 50
     }),
     RecordItem.fromJson({
       'rid': 233,
+      'costSeconds': 233,
+      'isCompleted': true,
       'tid': 233,
       'name': '2020年全国硕士研究生入学统一考试',
-      'isCompleted': true,
+      'description': '2020国考',
+      'subject': '政治',
+      'subjectId': 0,
       'timeStamp': DateTime.now().millisecondsSinceEpoch,
       'doneNum': 23,
       'questionNum': 50,
-      'correctRate': .5
+      'correctRate': 50
     }),
   ];
 
@@ -85,7 +92,7 @@ class _RecordTestPageState extends State<RecordTestPage> {
                 DateTime.fromMillisecondsSinceEpoch(item.timeStamp)
                     .toString()
                     .substring(0, 10);
-            String correctRate = '${(item.correctRate * 100).round()}%';
+            String correctRate = '${item.correctRate}%';
             String subStr = item.isCompleted ? '已完成 | 正确率 $correctRate' : '未完成';
             return ListTile(
               title: Text(
