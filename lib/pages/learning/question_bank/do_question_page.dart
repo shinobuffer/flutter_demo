@@ -4,7 +4,7 @@ import 'package:flutter_demo/component/base/icon_label_button.dart';
 import 'package:flutter_demo/model/question.dart';
 import 'package:flutter_demo/model/record_item.dart';
 import 'package:flutter_demo/model/test_info.dart';
-import 'package:flutter_demo/pages/learning/question_bank/test_result_page_new.dart';
+import 'package:flutter_demo/pages/learning/question_bank/test_result_page.dart';
 import 'package:flutter_demo/utils/dialog_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 import 'component/answer_card.dart';
