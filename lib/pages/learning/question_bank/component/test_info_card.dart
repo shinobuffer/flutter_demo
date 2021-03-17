@@ -1,15 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/component/image_set.dart';
 import 'package:flutter_demo/model/test_info.dart';
+import 'package:flutter_demo/pages/learning/question_bank/do_question_page.dart';
+import 'package:flutter_demo/pages/learning/question_bank/test_purchase_page.dart';
 import 'package:flutter_demo/utils/format_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
-class TestInfoCard extends StatelessWidget {
-  /// 用于展示试题信息的卡片，用在历年真题页面和模拟题页面
+class TestInfoCard extends StatefulWidget {
+  /// 用于展示试题信息的卡片，用在历年真题页面、模拟题页面和首页
 
-  const TestInfoCard({Key key, @required this.testInfo}) : super(key: key);
+  TestInfoCard({
+    Key key,
+    @required this.testInfo,
+    this.onJump,
+  }) : super(key: key);
 
   final TestInfo testInfo;
+
+  final VoidCallback onJump;
+
+  @override
+  _TestInfoCardState createState() => _TestInfoCardState();
+}
+
+class _TestInfoCardState extends State<TestInfoCard> {
+  TestInfo get testInfo => widget.testInfo;
+
+  VoidCallback get onJump => widget.onJump;
 
   String get _subject => testInfo.subject;
 
@@ -23,6 +40,13 @@ class TestInfoCard extends StatelessWidget {
 
   bool get _isFree => testInfo.isFree ?? true;
 
+  bool get _isPurchased => testInfo.isPurchased ?? false;
+
+  /// 当isFree为真，可直接做，
+  /// 当isFree为假但isPurchased为真，可直接做
+  /// 当isFree为假且isPurchased为假，需购买
+  bool get _isAccessible => _isFree || _isPurchased;
+
   double get _price => testInfo.price;
 
   /// 渲染按钮区域
@@ -30,24 +54,42 @@ class TestInfoCard extends StatelessWidget {
     List<Widget> renderWidgets = [
       Container(
         height: 28,
-        width: 74,
+        width: 65,
         margin: EdgeInsets.only(left: 5),
         child: FlatButton(
           textColor: Colors.white,
           color: ColorM.G3,
+          padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(
               Radius.circular(5),
             ),
           ),
           onPressed: () {
-            // todo: 跳转
+            if (onJump != null) onJump();
+            if (_isAccessible) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DoQuestionPage(),
+                ),
+              );
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TestPurchasePage(
+                    testInfo: testInfo,
+                  ),
+                ),
+              );
+            }
           },
-          child: Text(_isFree ? '去做题' : '去购买'),
+          child: Text(_isAccessible ? '去做题' : '去购买'),
         ),
       )
     ];
-    if (!_isFree) {
+    if (!_isAccessible) {
       renderWidgets.insert(
           0,
           Row(

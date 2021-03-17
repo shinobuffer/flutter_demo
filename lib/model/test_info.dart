@@ -10,6 +10,7 @@ class TestInfo {
         publisherId = json['publisherId'],
         isRealTest = json['isRealTest'],
         isFree = json['isFree'],
+        isPurchased = json['isPurchased'],
         price = json['price'],
         questionNum = json['questionNum'],
         doneNum = json['doneNum'];
@@ -44,10 +45,13 @@ class TestInfo {
   /// 是否免费
   final bool isFree;
 
+  /// 是否已购买（扩展可选字段，供首页testInfoCard使用，优先级低于isFree）
+  final bool isPurchased;
+
   /// 售价
   final double price;
 
-  /// 题目数量
+  /// 题目数量（所有题型）
   final int questionNum;
 
   /// 做卷人数
@@ -64,6 +68,7 @@ class TestInfo {
     sb.write('"publisher":`$publisher`,\n');
     sb.write('"isRealTest":$isRealTest,\n');
     sb.write('"isFree":$isFree,\n');
+    sb.write('"isPurchased":$isPurchased,\n');
     sb.write('"price":$price,\n');
     sb.write('"questionNum":$questionNum,\n');
     sb.write('"doneNum":$doneNum,\n');

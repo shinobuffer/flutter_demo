@@ -26,6 +26,8 @@ class TextStyleM {
   static const TextStyle D5_24 =
       TextStyle(color: Color(0xFF7F7F7F), fontSize: 24);
 
+  static const TextStyle D7_B =
+      TextStyle(color: Color(0xFF333333), fontWeight: FontWeight.bold);
   static const TextStyle D7_13 =
       TextStyle(color: Color(0xFF333333), fontSize: 13);
   static const TextStyle D7_14 =
@@ -62,6 +64,7 @@ class ColorM {
   // 其他颜色
   static const O1 = Color(0xFFFACD91);
   static const O2 = Color(0xFFF1A716);
+  static const O3 = Color(0xFFFF7D7D);
 }
 
 class NoSplashFactory extends InteractiveInkFeatureFactory {

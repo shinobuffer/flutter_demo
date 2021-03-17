@@ -83,47 +83,56 @@ class _RecordTestPageState extends State<RecordTestPage> {
       body: Container(
         height: double.maxFinite,
         alignment: Alignment.center,
-        child: ListView.separated(
-          itemCount: recordItems.length,
-          separatorBuilder: (context, index) => Divider(height: 1),
-          itemBuilder: (context, index) {
-            RecordItem item = recordItems[index];
-            String datetime =
-                DateTime.fromMillisecondsSinceEpoch(item.timeStamp)
-                    .toString()
-                    .substring(0, 10);
-            String correctRate = '${item.correctRate}%';
-            String subStr = item.isCompleted ? '已完成 | 正确率 $correctRate' : '未完成';
-            return ListTile(
-              title: Text(
-                item.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text('$datetime $subStr'),
-              trailing: SizedBox(
-                height: 25,
-                width: 60,
-                child: FlatButton(
-                  onPressed: () => jumpRecordTest(item),
-                  padding: EdgeInsets.zero,
-                  color: ColorM.G3,
-                  textColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(5),
+        child: recordItems.isNotEmpty
+            ? ListView.separated(
+                itemCount: recordItems.length,
+                separatorBuilder: (context, index) => Divider(height: 1),
+                itemBuilder: (context, index) {
+                  RecordItem item = recordItems[index];
+                  String datetime =
+                      DateTime.fromMillisecondsSinceEpoch(item.timeStamp)
+                          .toString()
+                          .substring(0, 10);
+                  String correctRate = '${item.correctRate}%';
+                  String subStr =
+                      item.isCompleted ? '已完成 | 正确率 $correctRate' : '未完成';
+                  return ListTile(
+                    title: Text(
+                      item.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  child: Text(
-                    item.isCompleted ? '查看结果' : '继续做题',
-                    style: TextStyleM.D0_12,
-                  ),
-                ),
+                    subtitle: Text('$datetime $subStr'),
+                    trailing: SizedBox(
+                      height: 25,
+                      width: 60,
+                      child: FlatButton(
+                        onPressed: () => jumpRecordTest(item),
+                        padding: EdgeInsets.zero,
+                        color: ColorM.G3,
+                        textColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(5),
+                          ),
+                        ),
+                        child: Text(
+                          item.isCompleted ? '查看结果' : '继续做题',
+                          style: TextStyleM.D0_12,
+                        ),
+                      ),
+                    ),
+                    dense: true,
+                  );
+                },
+              )
+            : NoDataTip(
+                imgHeight: 100,
+                imgFit: BoxFit.fitHeight,
+                margin: EdgeInsets.symmetric(vertical: 20),
+                text: '空空如也...',
+                textStyle: TextStyleM.D4,
               ),
-              dense: true,
-            );
-          },
-        ),
       ),
     );
   }

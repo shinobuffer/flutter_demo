@@ -7,6 +7,7 @@ class NoDataTip extends StatelessWidget {
     this.imgHeight,
     this.imgWidth,
     this.imgFit = BoxFit.contain,
+    this.margin = EdgeInsets.zero,
     this.gap = 5,
     @required this.text,
     this.textStyle,
@@ -15,6 +16,7 @@ class NoDataTip extends StatelessWidget {
   final double imgHeight;
   final double imgWidth;
   final BoxFit imgFit;
+  final EdgeInsetsGeometry margin;
   final double gap;
   final String text;
   final TextStyle textStyle;
@@ -23,6 +25,7 @@ class NoDataTip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.maxFinite,
+      margin: margin,
       child: Column(
         children: [
           ImageSet(
