@@ -6,6 +6,9 @@ import 'package:flutter_demo/pages/learning/question_bank/record_test/record_tes
 import 'package:flutter_demo/pages/learning/question_bank/simulation_test/simulation_test_page.dart';
 import 'package:flutter_demo/pages/learning/question_bank/wrong_test/wrong_test_page.dart';
 import 'package:flutter_demo/pages/learning/task/task_page.dart';
+import 'package:flutter_demo/pages/login_page.dart';
+import 'package:flutter_demo/pages/mine/setting/setting_page.dart';
+import 'package:flutter_demo/pages/register_page.dart';
 
 typedef PageBuilder = Widget Function(BuildContext context,
     {dynamic arguments});
@@ -23,6 +26,9 @@ final Map<String, PageBuilder> _routes = {
       CollectTestPage(arguments: arguments),
   '/question_bank/record_test': (context, {arguments}) =>
       RecordTestPage(arguments: arguments),
+  '/mine/setting': (context, {arguments}) => SettingPage(),
+  '/login': (context, {arguments}) => LoginPage(),
+  '/register': (context, {arguments}) => RegisterPage(),
 };
 
 final RouteFactory onGenerateRoute = (RouteSettings settings) {

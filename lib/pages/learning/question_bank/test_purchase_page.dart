@@ -169,7 +169,7 @@ class _TestPurchasePageState extends State<TestPurchasePage> {
                   color: Colors.white,
                   disabledColor: Colors.white,
                   textColor: ColorM.O2,
-                  disabledTextColor: ColorM.O3,
+                  disabledTextColor: ColorM.R2,
                   child: Text(checkBalance() ? '购买试题' : '余额不足'),
                   onPressed: checkBalance() ? onSubmitOrder : null,
                 ),

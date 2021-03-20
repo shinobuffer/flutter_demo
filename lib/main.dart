@@ -2,7 +2,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo/pages/learning/learning_page_view.dart';
-import 'package:flutter_demo/pages/learning/question_bank/do_question_page.dart';
+import 'package:flutter_demo/pages/mine/mine_page_veiw.dart';
 import 'package:flutter_demo/provide/global_provide.dart';
 import 'package:flutter_demo/route.dart';
 import 'package:flutter_demo/utils/style_util.dart';
@@ -65,24 +65,21 @@ class _HomeState extends State<Home> {
   ];
 
   int _curIndex = 0;
-
   Widget _curBody = LearningPageView();
+
   DateTime _lastQuitTime;
 
   void _onBarTap(int index) {
     if (_curIndex == index) return;
     switch (index) {
       case 0:
+        _curBody = LearningPageView();
         break;
       case 1:
+        Navigator.pushNamed(context, '/login');
         break;
       case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DoQuestionPage(),
-          ),
-        );
+        _curBody = MinePageView();
         break;
     }
     setState(() {

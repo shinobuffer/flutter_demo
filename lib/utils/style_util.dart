@@ -4,6 +4,8 @@ class TextStyleM {
   static const TextStyle D0 = TextStyle(color: Colors.white);
   static const TextStyle D0_12 = TextStyle(color: Colors.white, fontSize: 12);
   static const TextStyle D0_16 = TextStyle(color: Colors.white, fontSize: 16);
+  static const TextStyle D0_16_B =
+      TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold);
   static const TextStyle D0_28_B =
       TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold);
   static const TextStyle D0_32_B =
@@ -15,6 +17,8 @@ class TextStyleM {
       TextStyle(color: Color(0xFFCECECE), fontSize: 14);
 
   static const TextStyle D4 = TextStyle(color: Color(0xFFAAAAAA));
+  static const TextStyle D4_12 =
+      TextStyle(color: Color(0xFFAAAAAA), fontSize: 12);
   static const TextStyle D4_16 =
       TextStyle(color: Color(0xFFAAAAAA), fontSize: 16);
 
@@ -34,6 +38,8 @@ class TextStyleM {
       TextStyle(color: Color(0xFF333333), fontSize: 14);
   static const TextStyle D7_18_B = TextStyle(
       color: Color(0xFF333333), fontSize: 18, fontWeight: FontWeight.bold);
+  static const TextStyle D7_24_B = TextStyle(
+      color: Color(0xFF333333), fontSize: 24, fontWeight: FontWeight.bold);
 
   static const TextStyle G1 = TextStyle(color: Color(0xFF55B9B0));
   static const TextStyle G1_24 =
@@ -41,8 +47,20 @@ class TextStyleM {
   static const TextStyle G1_32 =
       TextStyle(color: Color(0xFF55B9B0), fontSize: 32);
 
+  static const TextStyle G0 = TextStyle(color: Colors.teal);
+  static const TextStyle G0_24 = TextStyle(color: Colors.teal, fontSize: 24);
+
+  static const TextStyle G2 = TextStyle(color: Color(0xFF70B603));
+  static const TextStyle G2_24 =
+      TextStyle(color: Color(0xFF70B603), fontSize: 24);
+
+  static const TextStyle G3 = TextStyle(color: Color(0xFF00796B));
+
+  static const TextStyle O1 = TextStyle(color: Color(0xFFF1A716));
   static const TextStyle O1_B =
       TextStyle(color: Color(0xFFF1A716), fontWeight: FontWeight.bold);
+  static const TextStyle O1_24 =
+      TextStyle(color: Color(0xFFF1A716), fontSize: 24);
 }
 
 class ColorM {
@@ -60,11 +78,11 @@ class ColorM {
   static const G3 = Color(0xFF7DCAC2);
   //红
   static const R1 = Color(0xFFEC808D);
+  static const R2 = Color(0xFFFF7D7D);
 
   // 其他颜色
   static const O1 = Color(0xFFFACD91);
   static const O2 = Color(0xFFF1A716);
-  static const O3 = Color(0xFFFF7D7D);
 }
 
 class NoSplashFactory extends InteractiveInkFeatureFactory {
