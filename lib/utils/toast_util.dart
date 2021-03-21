@@ -6,9 +6,13 @@ class ToastUtil {
 
   ToastUtil._();
 
-  static CancelFunc showText({@required String text}) {
+  static CancelFunc showText({
+    @required String text,
+    Duration duration = const Duration(seconds: 2),
+  }) {
     return BotToast.showText(
       text: text,
+      duration: duration,
       contentColor: Colors.black45,
       borderRadius: BorderRadius.all(
         Radius.circular(5),

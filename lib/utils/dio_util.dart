@@ -1,16 +1,17 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter_demo/utils/cookie_util.dart';
+// import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+// import 'package:flutter_demo/utils/cookie_util.dart';
+import 'package:sp_util/sp_util.dart';
 
 class Resp<T> {
   String status;
   int code;
   String msg;
   T data;
-  Response response;
+  // Response response;
 
-  Resp(this.status, this.code, this.msg, this.data, this.response);
+  Resp(this.status, this.code, this.msg, this.data);
 
   @override
   String toString() {
@@ -35,6 +36,14 @@ class DioUtil {
 
   DioUtil._init() {
     _dio = new Dio(_baseOptions);
+    // 自动注入authentication到header，这里使用sp存储
+    _dio.interceptors.add(InterceptorsWrapper(onRequest: (options) async {
+      String token = SpUtil.getString('jwt');
+
+      return token.isEmpty
+          ? options
+          : options.merge(headers: {'Authorization': 'Bearer $token'});
+    }));
     if (_enableCookie) {
       _addCookieManager(_dio);
     }
@@ -98,11 +107,16 @@ class DioUtil {
     _enableCookie = false;
   }
 
-  /// 添加cookie管理器
+  /// BUG 添加cookie管理器
   static void _addCookieManager(Dio dio) async {
-    dio.interceptors.add(
-      CookieManager(await CookieUtil.pCookieJar),
-    );
+    // var cookieJar = await CookieUtil.pCookieJar;
+    // dio.interceptors.add(
+    //   CookieManager(cookieJar),
+    // );
+    // dio.interceptors.add(InterceptorsWrapper(onRequest: (options) async {
+    //   var cookies = cookieJar.loadForRequest(Uri.parse(options.baseUrl));
+    //   print(cookies);
+    // }));
   }
 
   /// 添加拦截器
@@ -165,7 +179,7 @@ class DioUtil {
         _msg = dataMap[_msgKey];
         _data = dataMap[_dataKey];
 
-        return new Resp(_status, _code, _msg, _data, response);
+        return new Resp(_status, _code, _msg, _data);
       } catch (e) {
         return new Future.error(new DioError(response: response, error: e));
       }
@@ -188,6 +202,7 @@ class DioUtil {
     return request(
       path,
       queryParameters: queryParameters,
+      method: 'GET',
       options: checkOptions('GET', options),
       cancelToken: cancelToken,
       onSendProgress: onSendProgress,
@@ -207,10 +222,28 @@ class DioUtil {
       path,
       data: data,
       queryParameters: queryParameters,
-      options: checkOptions('POST', options).merge(
-          // todo: 这里考虑使用json？
-          contentType: 'application/x-www-form-urlencoded;charset=UTF-8'),
+      method: 'POST',
+      options: checkOptions('POST', options), // 默认content-type为json，下同
       cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+    );
+  }
+
+  /// put方法封装
+  Future<Resp<T>> put<T>(
+    String path, {
+    data,
+    Map<String, dynamic> queryParameters,
+    Options options,
+    CancelToken cancelToken,
+    ProgressCallback onSendProgress,
+  }) async {
+    return request(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      method: 'PUT',
+      options: checkOptions('PUT', options),
       onSendProgress: onSendProgress,
     );
   }
@@ -228,6 +261,7 @@ class DioUtil {
       path,
       data: formData,
       queryParameters: queryParameters,
+      method: 'POST',
       options: checkOptions('POST', options)
           .merge(contentType: 'multipart/form-data'),
       cancelToken: cancelToken,

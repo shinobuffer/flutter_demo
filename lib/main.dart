@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,15 +7,22 @@ import 'package:flutter_demo/pages/learning/learning_page_view.dart';
 import 'package:flutter_demo/pages/mine/mine_page_veiw.dart';
 import 'package:flutter_demo/provide/global_provide.dart';
 import 'package:flutter_demo/route.dart';
+import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 import 'package:flutter_demo/utils/toast_util.dart';
 import 'package:provider/provider.dart';
+import 'package:sp_util/sp_util.dart';
 
-void main() {
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    //设置状态栏透明
-    statusBarColor: Colors.transparent,
-  ));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SpUtil.getInstance();
+  ApiService.initialize();
+  if (Platform.isAndroid) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      //设置状态栏透明
+      statusBarColor: Colors.transparent,
+    ));
+  }
   runApp(MyApp());
 }
 

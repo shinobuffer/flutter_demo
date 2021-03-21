@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 mixin UserPasswordMixin {
+  final userKey = GlobalKey<FormFieldState<String>>();
   final TextEditingController userController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -15,6 +16,7 @@ mixin UserPasswordMixin {
 
   Widget getUserTextField(BuildContext context) {
     return TextFormField(
+      key: userKey,
       keyboardType: TextInputType.number,
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp('[0-9]')),
