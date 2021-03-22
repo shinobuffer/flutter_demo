@@ -7,6 +7,8 @@ import 'package:flutter_demo/pages/learning/question_bank/simulation_test/simula
 import 'package:flutter_demo/pages/learning/question_bank/wrong_test/wrong_test_page.dart';
 import 'package:flutter_demo/pages/learning/task/task_page.dart';
 import 'package:flutter_demo/pages/login_page.dart';
+import 'package:flutter_demo/pages/mine/bcoin/bcoin_page.dart';
+import 'package:flutter_demo/pages/mine/gseed/gseed_page.dart';
 import 'package:flutter_demo/pages/mine/setting/setting_page.dart';
 import 'package:flutter_demo/pages/profile_page.dart';
 import 'package:flutter_demo/pages/register_page.dart';
@@ -28,6 +30,8 @@ final Map<String, PageBuilder> _routes = {
   '/question_bank/record_test': (context, {arguments}) =>
       RecordTestPage(arguments: arguments),
   '/mine/setting': (context, {arguments}) => SettingPage(),
+  '/mine/bcoin': (context, {arguments}) => BCoinPage(),
+  '/mine/gseed': (context, {arguments}) => GSeedPage(),
   '/login': (context, {arguments}) => LoginPage(),
   '/register': (context, {arguments}) => RegisterPage(),
   '/profile': (context, {arguments}) => ProfilePage(),

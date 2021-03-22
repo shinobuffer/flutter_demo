@@ -232,7 +232,9 @@ class _MinePageViewState extends State<MinePageView> {
                     height: 24,
                   ),
                   label: 'B币',
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/mine/bcoin');
+                  },
                 ),
                 _getAssetItem(
                   icon: Image.asset(
@@ -240,7 +242,9 @@ class _MinePageViewState extends State<MinePageView> {
                     height: 24,
                   ),
                   label: '金瓜子',
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/mine/gseed');
+                  },
                 ),
               ],
             ),

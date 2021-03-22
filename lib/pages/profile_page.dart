@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/component/loading_first_screen.dart';
+import 'package:flutter_demo/model/user_info.dart';
 import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/screen_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
@@ -47,15 +48,15 @@ class _ProfilePageState extends State<ProfilePage> {
   /// 首屏数据初始化
   Future<void> initData() async {
     var resp = await ApiService.getUserInfo();
-    print(resp.data);
+    if (resp.code != 0) ToastUtil.showText(text: resp.msg);
+    UserInfo userInfo = UserInfo.fromJson(resp.data ?? {});
     setState(() {
-      nickName = resp.data['nickname'] ?? '';
-      intro = resp.data['introduction'] ?? '';
-      sex = resp.data['sex'] ?? 0;
-      peeYear = resp.data['peeYear'];
-      peeProfession = resp.data['peeProfession'];
+      nickName = userInfo.nickName;
+      intro = userInfo.introduction;
+      sex = userInfo.sex;
+      peeYear = userInfo.peeYear;
+      peeProfession = userInfo.peeProfession;
     });
-    print([nickName, intro, sex, peeYear, peeProfession]);
   }
 
   /// 更新用户信息

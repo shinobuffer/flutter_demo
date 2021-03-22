@@ -76,13 +76,13 @@ class ApiService {
 
   /// b币充值（用户态）
   static Future<Resp<Null>> recharge(int value) async {
-    Resp<Null> resp = await dio.put('/user/info/$value');
+    Resp<Null> resp = await dio.put('/user/recharge/$value');
     return resp;
   }
 
   /// 瓜子兑换（用户态）
   static Future<Resp<Null>> exchange(int bcoin) async {
-    Resp<Null> resp = await dio.put('/user/info/$bcoin');
+    Resp<Null> resp = await dio.put('/user/exchange/$bcoin');
     return resp;
   }
 

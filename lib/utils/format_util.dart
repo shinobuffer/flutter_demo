@@ -6,7 +6,7 @@ class FormatUtil {
       return '';
     } else if (number < 9999) {
       return number.toString();
-    } else if (number > 99999) {
+    } else if (number < 99999) {
       return (number / 1000.0).toStringAsFixed(fractionDigits) + 'k';
     } else {
       return (number / 10000.0).toStringAsFixed(fractionDigits) + 'w';

@@ -56,11 +56,20 @@ class TextStyleM {
 
   static const TextStyle G3 = TextStyle(color: Color(0xFF00796B));
 
+  static const TextStyle R1_B =
+      TextStyle(color: Color(0xFFED462F), fontWeight: FontWeight.bold);
+
   static const TextStyle O1 = TextStyle(color: Color(0xFFF1A716));
   static const TextStyle O1_B =
       TextStyle(color: Color(0xFFF1A716), fontWeight: FontWeight.bold);
+  static const TextStyle O1_16 =
+      TextStyle(color: Color(0xFFF1A716), fontSize: 15);
+  static const TextStyle O1_18_B = TextStyle(
+      color: Color(0xFFF1A716), fontSize: 18, fontWeight: FontWeight.bold);
   static const TextStyle O1_24 =
       TextStyle(color: Color(0xFFF1A716), fontSize: 24);
+  static const TextStyle O1_32_B = TextStyle(
+      color: Color(0xFFF1A716), fontSize: 32, fontWeight: FontWeight.bold);
 }
 
 class ColorM {
