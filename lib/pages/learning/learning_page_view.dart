@@ -238,7 +238,6 @@ class _LearningPageViewState extends State<LearningPageView> {
 
   @override
   Widget build(BuildContext context) {
-    print(DateUtil.getWeekday(today, short: true));
     return Container(
       height: double.maxFinite,
       width: double.maxFinite,

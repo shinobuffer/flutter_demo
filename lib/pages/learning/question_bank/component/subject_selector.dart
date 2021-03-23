@@ -2,16 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/utils/screen_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 import 'package:flutter_demo/utils/toast_util.dart';
+import 'package:sp_util/sp_util.dart';
 
 class SubjectSelector extends StatefulWidget {
-  SubjectSelector({Key key}) : super(key: key);
+  SubjectSelector({
+    Key key,
+    @required this.previousSubjectIds,
+  }) : super(key: key);
 
+  final List<int> previousSubjectIds;
   @override
   _SubjectSelectorState createState() => _SubjectSelectorState();
 }
 
 class _SubjectSelectorState extends State<SubjectSelector> {
-  // todo: 拉取科目信息
+  // 拉取科目信息，目前是前后端定死
+  static const Map<int, String> subjectMap = {
+    1: '政治',
+    2: '数学一',
+    3: '数学二',
+    4: '数学三',
+    5: '英语一',
+    6: '英语二',
+    10: '法硕',
+    11: '农学',
+    12: '教育学',
+    13: '历史学',
+    14: '心理学',
+    15: '计算机',
+    16: '西医综合',
+  };
   List<SubjectData> subjects = [
     SubjectData.fromJson({
       'type': '公共课',
@@ -19,27 +39,27 @@ class _SubjectSelectorState extends State<SubjectSelector> {
       'items': [
         {
           'subject': '政治',
-          'subjectId': 0,
-        },
-        {
-          'subject': '数学一',
           'subjectId': 1,
         },
         {
-          'subject': '数学二',
+          'subject': '数学一',
           'subjectId': 2,
         },
         {
-          'subject': '数学三',
+          'subject': '数学二',
           'subjectId': 3,
         },
         {
-          'subject': '英语一',
+          'subject': '数学三',
           'subjectId': 4,
         },
         {
-          'subject': '英语二',
+          'subject': '英语一',
           'subjectId': 5,
+        },
+        {
+          'subject': '英语二',
+          'subjectId': 6,
         },
       ],
     }),
@@ -79,10 +99,10 @@ class _SubjectSelectorState extends State<SubjectSelector> {
     }),
   ];
 
-  List<int> previousSubjectIds = [0];
+  List<int> get previousSubjectIds => widget.previousSubjectIds;
   List<int> selectedSubjectIds = [];
 
-  /// todo: 科目保存
+  /// 科目保存
   void onSave() async {
     if (selectedSubjectIds.isEmpty) {
       ToastUtil.showText(text: '请至少选择一个科目');
@@ -91,7 +111,14 @@ class _SubjectSelectorState extends State<SubjectSelector> {
       // 没有变更
       Navigator.pop(context, false);
     } else {
-      // 变更
+      // 变更，本机存储选择的科目
+      selectedSubjectIds.sort((a, b) => a.compareTo(b));
+      SpUtil.putObjectList(
+        'selected_subjects',
+        selectedSubjectIds
+            .map((id) => {'subjectId': id, 'subject': subjectMap[id]})
+            .toList(),
+      );
       ToastUtil.showText(text: '修改成功');
       Navigator.pop(context, true);
     }
@@ -139,6 +166,7 @@ class _SubjectSelectorState extends State<SubjectSelector> {
   @override
   void initState() {
     super.initState();
+    selectedSubjectIds = List.from(previousSubjectIds);
   }
 
   @override

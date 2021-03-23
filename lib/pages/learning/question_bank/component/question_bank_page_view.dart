@@ -130,6 +130,15 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
                         ),
                         Column(
                           children: [
+                            Text(
+                              '233H',
+                              style: TextStyleM.G1_24,
+                            ),
+                            Text('做题时长'),
+                          ],
+                        ),
+                        Column(
+                          children: [
                             Text.rich(
                               TextSpan(
                                 children: [
@@ -142,15 +151,6 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
                               ),
                             ),
                             Text('正确率'),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              '233',
-                              style: TextStyleM.G1_24,
-                            ),
-                            Text('天数'),
                           ],
                         ),
                       ],

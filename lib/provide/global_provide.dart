@@ -34,7 +34,11 @@ class GlobalProvide with ChangeNotifier {
   }
 
   /// 登录账号，初始化用户状态
-  void login({String accessToken, String refreshToken}) async {
+  void login({
+    String accessToken,
+    String refreshToken,
+    Map<String, dynamic> userInfo,
+  }) async {
     print('[LOGIN SUCC]');
     print('[Write accessToken] $accessToken');
     print('[Write refreshToken] $refreshToken');
@@ -42,7 +46,8 @@ class GlobalProvide with ChangeNotifier {
     await SpUtil.putString('refresh_token', refreshToken);
     _token = accessToken;
     _isLogin = true;
-    updateUserInfo();
+    _userInfo = UserInfo.fromJson(userInfo ?? {});
+    notifyListeners();
   }
 
   /// 退出登录，删除用户态状态

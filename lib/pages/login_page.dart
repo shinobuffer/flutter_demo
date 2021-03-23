@@ -38,6 +38,7 @@ class _LoginPageState extends State<LoginPage> with UserPasswordMixin {
           getGlobalProvide(context).login(
             accessToken: resp.data['jwt']['access_token'],
             refreshToken: resp.data['jwt']['refresh_token'],
+            userInfo: resp.data['user'],
           );
           Navigator.pop(context);
         }

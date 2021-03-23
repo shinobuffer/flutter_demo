@@ -3,6 +3,7 @@ import 'package:flutter_demo/pages/learning/question_bank/component/question_ban
 import 'package:flutter_demo/pages/learning/question_bank/component/subject_selector.dart';
 import 'package:flutter_demo/utils/dialog_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
+import 'package:sp_util/sp_util.dart';
 
 class QuestionBankPage extends StatefulWidget {
   QuestionBankPage({Key key}) : super(key: key);
@@ -14,31 +15,55 @@ class QuestionBankPage extends StatefulWidget {
 class _QuestionBankPageState extends State<QuestionBankPage> {
   TabController _controller;
 
-  // todo: 获取预设科目，如果没有科目，跳转至选择科目
-  Map<int, String> subjectMap = {0: '政治', 1: '英语', 11: '计算机'};
-
-  List<int> get subjectKeys => subjectMap.keys.toList();
+  /// 选择的科目，必须非空，如果第一次使用则初始化为政治
+  List<Map<String, dynamic>> selectedSubjects = [
+    {'subjectId': 1, 'subject': '政治'}
+  ];
 
   /// 学科修改
-  void popSubjectSelector({bool allowReturn = false}) async {
+  void popSubjectSelector() async {
     bool needRefresh = await showBottomModal<bool>(
       context: context,
       backgroundColor: ColorM.C1,
-      body: SubjectSelector(),
+      body: SubjectSelector(
+        previousSubjectIds: selectedSubjects
+            .map((subject) => subject['subjectId'])
+            .toList()
+            ?.cast<int>(),
+      ),
       dismissible: false,
       dragable: false,
     );
     if (needRefresh is bool && needRefresh) {
-      // todo 更新科目
-      setState(() {});
+      // 科目有变更，更新页面
+      // BUG 有bar和view对不上的情况
+      setState(() {
+        selectedSubjects = SpUtil.getObjectList('selected_subjects')
+            ?.cast<Map<String, dynamic>>();
+        _controller = TabController(
+          length: selectedSubjects.length,
+          vsync: ScrollableState(),
+        );
+      });
     }
   }
 
   @override
   void initState() {
     super.initState();
+    // 从本地获取选中的科目
+    var tmp =
+        SpUtil.getObjectList('selected_subjects')?.cast<Map<String, dynamic>>();
+    // 如果本地没记录，即初次使用，初始化一个政治在本地
+    if (tmp == null) {
+      SpUtil.putObjectList('selected_subjects', [
+        {'subjectId': 1, 'subject': '政治'}
+      ]);
+    } else {
+      selectedSubjects = tmp;
+    }
     _controller = TabController(
-      length: subjectKeys.length,
+      length: selectedSubjects.length,
       vsync: ScrollableState(),
     );
   }
@@ -79,12 +104,13 @@ class _QuestionBankPageState extends State<QuestionBankPage> {
                 labelColor: ColorM.C7,
                 isScrollable: true,
                 controller: _controller,
-                tabs: subjectKeys
+                tabs: selectedSubjects
                     .map(
                       (e) => Container(
+                        key: ValueKey<int>(e['subjectId']),
                         alignment: Alignment.center,
                         height: 32,
-                        child: Text(subjectMap[e]),
+                        child: Text(e['subject']),
                       ),
                     )
                     .toList(),
@@ -95,11 +121,12 @@ class _QuestionBankPageState extends State<QuestionBankPage> {
       ),
       body: TabBarView(
         controller: _controller,
-        children: subjectKeys
+        children: selectedSubjects
             .map(
               (e) => QuestionBankPageView(
-                subjectId: e,
-                subject: subjectMap[e],
+                key: ValueKey<int>(e['subjectId']),
+                subjectId: e['subjectId'],
+                subject: e['subject'],
               ),
             )
             .toList(),
