@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/model/user_info.dart';
 import 'package:flutter_demo/pages/mine/component/history_bill.dart';
-import 'package:flutter_demo/service/api_service.dart';
+import 'package:flutter_demo/provide/global_provide.dart';
 import 'package:flutter_demo/utils/dialog_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
+import 'package:provider/provider.dart';
 
 class BCoinPage extends StatefulWidget {
   BCoinPage({Key key}) : super(key: key);
@@ -13,20 +14,6 @@ class BCoinPage extends StatefulWidget {
 }
 
 class _BCoinPageState extends State<BCoinPage> {
-  int bCoin;
-
-  void refreshData() {
-    ApiService.getUserInfo().then(
-      (resp) {
-        setState(
-          () {
-            bCoin = UserInfo.fromJson(resp.data ?? {}).bCoin;
-          },
-        );
-      },
-    );
-  }
-
   /// 弹出账单
   void popHistoryBill() {
     showBottomModal(
@@ -85,7 +72,7 @@ class _BCoinPageState extends State<BCoinPage> {
   @override
   void initState() {
     super.initState();
-    refreshData();
+    getGlobalProvide(context).updateUserInfo();
   }
 
   @override
@@ -123,9 +110,12 @@ class _BCoinPageState extends State<BCoinPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    '${bCoin ?? "--"}',
-                    style: TextStyleM.O1_32_B,
+                  Selector<GlobalProvide, UserInfo>(
+                    selector: (context, provide) => provide.userInfo,
+                    builder: (context, userInfo, child) => Text(
+                      '${userInfo.bCoin ?? "--"}',
+                      style: TextStyleM.O1_32_B,
+                    ),
                   ),
                   Text(
                     'B币余额',

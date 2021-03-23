@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter_demo/utils/dio_util.dart';
-import 'package:sp_util/sp_util.dart';
 
 class ApiService {
   static DioUtil dio;
@@ -14,6 +13,22 @@ class ApiService {
     dio = DioUtil();
   }
 
+  /// 自动刷新token
+  static Future<Resp<Map<String, dynamic>>> refresh({
+    String accessToken,
+    String refreshToken,
+  }) async {
+    print('[accessToken] $accessToken');
+    print('[refreshToken] $refreshToken');
+    if (accessToken.isNotEmpty && refreshToken.isNotEmpty) {
+      Resp<Map<String, dynamic>> resp = await dio.post(
+        '/user/refresh',
+        queryParameters: {'refresh_token': refreshToken},
+      );
+      return resp;
+    }
+  }
+
   /// 登录接口
   static Future<Resp<Map<String, dynamic>>> login({
     String phone,
@@ -23,8 +38,6 @@ class ApiService {
       '/user/login/phone',
       data: {'phone': phone, 'password': password},
     );
-    bool isSuccess = resp.code == 0;
-    if (isSuccess) SpUtil.putString('jwt', resp.data['jwt']['access_token']);
     return resp;
   }
 

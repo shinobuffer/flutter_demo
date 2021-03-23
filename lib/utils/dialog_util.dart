@@ -22,12 +22,12 @@ Future<T> showCancelOkDialog<T>({
       contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       actions: [
         RaisedButton(
-          onPressed: onCancel,
+          onPressed: onCancel ?? () => Navigator.pop(context, false),
           child: Text('$cancelText'),
         ),
         RaisedButton(
           color: okColor ?? Theme.of(context).primaryColor,
-          onPressed: onOk,
+          onPressed: onOk ?? () => Navigator.pop(context, true),
           child: Text(
             '$okText',
             style: TextStyle(color: Colors.white),
@@ -45,10 +45,11 @@ Future<T> showConfirmDialog<T>({
   String confirmText = '确定',
   Color confirmColor,
   bool allowReturn = true,
+  bool dismissible = false,
   Function onConfirm,
 }) async {
   return await showDialog<T>(
-    barrierDismissible: false,
+    barrierDismissible: dismissible,
     context: context,
     builder: (context) => WillPopScope(
       child: AlertDialog(
@@ -69,7 +70,7 @@ Future<T> showConfirmDialog<T>({
                 '$confirmText',
                 style: TextStyleM.D0,
               ),
-              onPressed: onConfirm,
+              onPressed: onConfirm ?? () => Navigator.pop(context),
             ),
           )
         ],

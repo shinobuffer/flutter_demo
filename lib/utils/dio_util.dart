@@ -13,6 +13,8 @@ class Resp<T> {
 
   Resp(this.status, this.code, this.msg, this.data);
 
+  bool get isSucc => code == 0;
+
   @override
   String toString() {
     StringBuffer sb = new StringBuffer('==========>Resp<$T><==========\n');
@@ -38,7 +40,7 @@ class DioUtil {
     _dio = new Dio(_baseOptions);
     // 自动注入authentication到header，这里使用sp存储
     _dio.interceptors.add(InterceptorsWrapper(onRequest: (options) async {
-      String token = SpUtil.getString('jwt');
+      String token = SpUtil.getString('access_token');
 
       return token.isEmpty
           ? options

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/model/user_info.dart';
 import 'package:flutter_demo/pages/mine/component/exchange_card.dart';
 import 'package:flutter_demo/pages/mine/component/history_bill.dart';
-import 'package:flutter_demo/service/api_service.dart';
+import 'package:flutter_demo/provide/global_provide.dart';
 import 'package:flutter_demo/utils/dialog_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
+import 'package:provider/provider.dart';
 
 class GSeedPage extends StatefulWidget {
   GSeedPage({Key key}) : super(key: key);
@@ -14,18 +15,8 @@ class GSeedPage extends StatefulWidget {
 }
 
 class _GSeedPageState extends State<GSeedPage> {
-  int gSeed;
-
   void refreshData() {
-    ApiService.getUserInfo().then(
-      (resp) {
-        setState(
-          () {
-            gSeed = UserInfo.fromJson(resp.data ?? {}).gSeed;
-          },
-        );
-      },
-    );
+    getGlobalProvide(context).updateUserInfo();
   }
 
   /// 弹出账单
@@ -140,9 +131,12 @@ class _GSeedPageState extends State<GSeedPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    '${gSeed ?? "--"}',
-                    style: TextStyleM.O1_32_B,
+                  Selector<GlobalProvide, UserInfo>(
+                    selector: (context, provide) => provide.userInfo,
+                    builder: (context, userInfo, child) => Text(
+                      '${userInfo.gSeed ?? "--"}',
+                      style: TextStyleM.O1_32_B,
+                    ),
                   ),
                   Text(
                     '金瓜子余额',

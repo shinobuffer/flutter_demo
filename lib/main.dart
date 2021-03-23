@@ -30,21 +30,21 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      builder: BotToastInit(),
-      navigatorObservers: [BotToastNavigatorObserver()],
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      // 路由配置
-      onGenerateRoute: onGenerateRoute,
-      // 全局状态配置
-      home: ChangeNotifierProvider(
-        create: (_) => GlobalProvide(),
-        child: Home(),
+    return ChangeNotifierProvider(
+      create: (_) => GlobalProvide(),
+      child: MaterialApp(
+        builder: BotToastInit(),
+        navigatorObservers: [BotToastNavigatorObserver()],
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.teal,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        // 路由配置
+        onGenerateRoute: onGenerateRoute,
+        // 全局状态配置
+        home: Home(),
       ),
     );
   }
@@ -85,7 +85,6 @@ class _HomeState extends State<Home> {
         _curBody = LearningPageView();
         break;
       case 1:
-        Navigator.pushNamed(context, '/login');
         break;
       case 2:
         _curBody = MinePageView();
@@ -94,6 +93,12 @@ class _HomeState extends State<Home> {
     setState(() {
       _curIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getGlobalProvide(context).tryAutoLogin();
   }
 
   @override

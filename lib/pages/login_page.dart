@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/pages/user_password_mixin.dart';
+import 'package:flutter_demo/provide/global_provide.dart';
 import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/screen_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
@@ -34,6 +35,10 @@ class _LoginPageState extends State<LoginPage> with UserPasswordMixin {
       ApiService.login(phone: user, password: password).then((resp) {
         ToastUtil.showText(text: resp.msg);
         if (resp.code == 0) {
+          getGlobalProvide(context).login(
+            accessToken: resp.data['jwt']['access_token'],
+            refreshToken: resp.data['jwt']['refresh_token'],
+          );
           Navigator.pop(context);
         }
         setState(() {

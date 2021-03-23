@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/model/user_info.dart';
+import 'package:flutter_demo/provide/global_provide.dart';
 import 'package:flutter_demo/utils/screen_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
+import 'package:provider/provider.dart';
 
 class MinePageView extends StatefulWidget {
   MinePageView({Key key}) : super(key: key);
@@ -20,67 +23,71 @@ class _MinePageViewState extends State<MinePageView> {
         15,
         5,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: double.maxFinite,
-            alignment: Alignment.topRight,
-            child: SizedBox(
-              height: 40,
-              width: 40,
-              child: FlatButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/mine/setting');
-                },
-                textColor: Colors.white,
-                padding: EdgeInsets.zero,
-                shape: CircleBorder(),
-                child: Icon(Icons.settings_rounded),
+      child: Selector<GlobalProvide, UserInfo>(
+        selector: (context, provide) => provide.userInfo,
+        builder: (context, userInfo, child) => Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            child,
+            DefaultTextStyle(
+              style: TextStyleM.D0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Column(
+                    children: [
+                      Container(
+                        height: 60,
+                        width: 60,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/images/passerby.png'),
+                            alignment: Alignment.topCenter,
+                            fit: BoxFit.fitWidth,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                          border: Border.all(color: Colors.white60, width: 2),
+                        ),
+                      ),
+                      Text(
+                        userInfo.nickName,
+                        style: TextStyleM.D0_16_B,
+                      )
+                    ],
+                  )
+                ],
               ),
             ),
-          ),
-          DefaultTextStyle(
-            style: TextStyleM.D0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Column(
-                  children: [
-                    Container(
-                      height: 60,
-                      width: 60,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('assets/images/passerby.png'),
-                          alignment: Alignment.topCenter,
-                          fit: BoxFit.fitWidth,
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(30)),
-                        border: Border.all(color: Colors.white60, width: 2),
-                      ),
-                    ),
-                    Text(
-                      '用户名',
-                      style: TextStyleM.D0_16_B,
-                    )
-                  ],
-                )
-              ],
+            Container(
+              width: 180,
+              height: 25,
+              alignment: Alignment.center,
+              child: Text(
+                userInfo.introduction,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyleM.G3,
+              ),
+            ),
+          ],
+        ),
+        child: Container(
+          width: double.maxFinite,
+          alignment: Alignment.topRight,
+          child: SizedBox(
+            height: 40,
+            width: 40,
+            child: FlatButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/mine/setting');
+              },
+              textColor: Colors.white,
+              padding: EdgeInsets.zero,
+              shape: CircleBorder(),
+              child: Icon(Icons.settings_rounded),
             ),
           ),
-          Container(
-            width: 180,
-            height: 25,
-            alignment: Alignment.center,
-            child: Text(
-              '个人介绍',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyleM.G3,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -126,7 +133,7 @@ class _MinePageViewState extends State<MinePageView> {
                     ],
                   ),
                 ),
-                Text('正确率'),
+                Text('做题时间'),
               ],
             ),
             Column(
@@ -282,6 +289,7 @@ class _MinePageViewState extends State<MinePageView> {
   void initState() {
     // todo: 拉取用户基本信息，资产信息，（总做题数，学习时长，正确率）
     super.initState();
+    getGlobalProvide(context).updateUserInfo();
   }
 
   @override

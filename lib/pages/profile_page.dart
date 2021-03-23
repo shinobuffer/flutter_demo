@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/component/loading_first_screen.dart';
 import 'package:flutter_demo/model/user_info.dart';
+import 'package:flutter_demo/provide/global_provide.dart';
 import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/screen_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
@@ -47,9 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   /// 首屏数据初始化
   Future<void> initData() async {
-    var resp = await ApiService.getUserInfo();
-    if (resp.code != 0) ToastUtil.showText(text: resp.msg);
-    UserInfo userInfo = UserInfo.fromJson(resp.data ?? {});
+    UserInfo userInfo = getGlobalProvide(context).userInfo;
     setState(() {
       nickName = userInfo.nickName;
       intro = userInfo.introduction;
@@ -61,13 +60,20 @@ class _ProfilePageState extends State<ProfilePage> {
 
   /// 更新用户信息
   void updateUserInfo() {
+    if (!_formKey.currentState.validate()) return;
     ApiService.updateUserInfo(
       nickname: nickName,
       introduction: intro,
       sex: sex,
       peeYear: peeYear,
       peeProfession: peeProfession,
-    ).then((resp) => ToastUtil.showText(text: resp.msg));
+    ).then((resp) {
+      ToastUtil.showText(text: resp.msg);
+      if (resp.code == 0) {
+        /// 更新全局用户信息
+        getGlobalProvide(context).updateUserInfo();
+      }
+    });
   }
 
   /// 渲染头像区域
@@ -210,7 +216,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   width: double.maxFinite,
                 ),
                 Text(
-                  '填写基本信息',
+                  '修改基本信息',
                   style: TextStyleM.D7_24_B,
                 ),
                 _getAvatar(),
@@ -230,12 +236,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         Radius.circular(17),
                       ),
                     ),
-                    onPressed: () {
-                      if (_formKey.currentState.validate()) {
-                        print('wwww');
-                        updateUserInfo();
-                      }
-                    },
+                    onPressed: updateUserInfo,
                     child: Text('保存'),
                   ),
                 ),

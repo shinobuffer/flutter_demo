@@ -80,7 +80,7 @@ class _RegisterPageState extends State<RegisterPage> with UserPasswordMixin {
       ).then((resp) {
         ToastUtil.showText(text: resp.msg);
         if (resp.code == 0) {
-          //todo: 定义注册成功行为
+          Navigator.pop(context);
         }
         setState(() {
           isRegistering = false;
