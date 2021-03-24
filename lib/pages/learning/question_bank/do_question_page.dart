@@ -5,8 +5,10 @@ import 'package:flutter_demo/model/question.dart';
 import 'package:flutter_demo/model/record_item.dart';
 import 'package:flutter_demo/model/test_info.dart';
 import 'package:flutter_demo/pages/learning/question_bank/test_result_page.dart';
+import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/dialog_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
+import 'package:flutter_demo/utils/toast_util.dart';
 import 'component/answer_card.dart';
 import 'component/correction_feedback.dart';
 import 'component/question_page_view.dart';
@@ -14,40 +16,41 @@ import 'component/question_page_view.dart';
 class DoQuestionPage extends StatefulWidget {
   DoQuestionPage({
     Key key,
-    // todo
-    // this.testInfo,
-    // this.recordItem,
+    // 这两者只能传一个，对应做题和续题
+    this.testInfo,
+    this.recordItem,
   }) : super(key: key);
 
-  // 这两者只能传一个，对应做题和续题
-  final TestInfo testInfo = TestInfo.fromJson({
-    'tid': 233,
-    'time': '2020-11-11',
-    'name': '2020年全国硕士研究生入学统一考试（政治）',
-    'description': '2020年考研政治',
-    'subject': '政治',
-    'subjectId': 233,
-    'publisher': '教育部',
-    'publisherId': 233,
-    'isFree': true,
-    'price': 0.0,
-    'questionNum': 50,
-    'doneNum': 2333,
-  });
-  final RecordItem recordItem = RecordItem.fromJson({
-    'rid': 233,
-    'costSeconds': 233,
-    'isCompleted': false,
-    'tid': 233,
-    'name': '2020年全国硕士研究生入学统一考试',
-    'description': '2020国考',
-    'subject': '政治',
-    'subjectId': 0,
-    'timeStamp': DateTime.now().millisecondsSinceEpoch,
-    'doneNum': 2,
-    'questionNum': 2,
-    'correctRate': 50,
-  });
+  final TestInfo testInfo;
+  // TestInfo.fromJson({
+  //   'tid': 233,
+  //   'time': '2020-11-11',
+  //   'name': '2020年全国硕士研究生入学统一考试（政治）',
+  //   'description': '2020年考研政治',
+  //   'subject': '政治',
+  //   'subjectId': 233,
+  //   'publisher': '教育部',
+  //   'publisherId': 233,
+  //   'isFree': true,
+  //   'price': 0.0,
+  //   'questionNum': 50,
+  //   'doneNum': 2333,
+  // })
+  final RecordItem recordItem;
+  // RecordItem.fromJson({
+  //   'rid': 233,
+  //   'costSeconds': 233,
+  //   'isCompleted': false,
+  //   'tid': 233,
+  //   'name': '2020年全国硕士研究生入学统一考试',
+  //   'description': '2020国考',
+  //   'subject': '政治',
+  //   'subjectId': 0,
+  //   'timeStamp': DateTime.now().millisecondsSinceEpoch,
+  //   'doneNum': 2,
+  //   'questionNum': 2,
+  //   'correctRate': 50,
+  // })
 
   @override
   _DoQuestionPageState createState() => _DoQuestionPageState();
@@ -60,7 +63,10 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
 
   final PageController _pageController = PageController(initialPage: 0);
 
-  List<Question> questions;
+  List<Question> questions = [];
+
+  /// 题目初始化是否完成
+  bool isReady = false;
 
   int _curIndex = 0;
   int _costSeconds = 0;
@@ -70,7 +76,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
 
   RecordItem get recordItem => widget.recordItem;
 
-  bool get isNewDo => testInfo != null;
+  bool get isFromRecord => recordItem != null;
 
   String get testName => testInfo?.name ?? recordItem?.name;
 
@@ -100,6 +106,53 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
     return _ > 9 ? _.toString() : '0$_';
   }
 
+  /// 首屏数据初始化，拉取题目
+  /// 如果只有testInfo（新做题），通过tid请求获取questions，初始化计数，提示开始做题
+  /// 如果只有recordItem（继续做题），通过tid请求questions，通过rid请求answerMap，并合并得到最终question；并恢复计数，提示继续做题
+  Future<void> initData() async {
+    int tid = testInfo?.tid ?? recordItem?.tid;
+    print('[DOING TEST<tid:$tid>]');
+    var resp = await ApiService.getQuestionsOfTest(tid);
+    List<Map<String, dynamic>> questionsJson = resp.data;
+    // questionsJson
+    // [
+    //   {
+    //     'questionId': 114514,
+    //     'type': 0,
+    //     'chapter': '物质世界和实践——哲学概述',
+    //     'chapterId': 233,
+    //     'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
+    //     'choices': ['两个', '三个', '四个', '五个'],
+    //     'correctChoices': [0],
+    //     'correctBlank': null,
+    //     'analysis': '无解析',
+    //   },
+    // ];
+    if (isFromRecord) {
+      //todo 如果是继续做题，通过rid获取answerMap，跟questionsJson合并
+      Map<int, List<int>> answerMap = {
+        25: [2],
+        26: [2],
+        27: [2],
+        28: [2],
+      };
+      questionsJson.forEach((q) {
+        if (q['type'] < 2) {
+          int qid = q['questionId'];
+          q['userChoices'] = answerMap[qid] ?? [];
+        }
+      });
+      _costSeconds = recordItem.costSeconds;
+    }
+    List<Question> qs = questionsJson.map((e) => Question.fromJson(e)).toList();
+    // 对问题排序，选择题优先
+    qs.sort((a, b) => a.type.index.compareTo(b.type.index));
+    setState(() {
+      isReady = true;
+      questions = qs;
+    });
+  }
+
   void starTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -109,49 +162,32 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
     });
   }
 
-  /// todo: 开始弹框，对于新做的题，初始化计数，提示开始做题
+  /// 开始弹框，对于新做的题，初始化计数，提示开始做题
   /// 对于继续做题，恢复计数，提示继续做题
-  void showInitDialog(BuildContext context) async {
-    bool confirmed;
-    if (isNewDo) {
-      confirmed = await showConfirmDialog<bool>(
-        context: context,
-        title: '$testName',
-        content: Container(
-          height: 130,
-          child: Text(
-            '$testDescription',
-            maxLines: 7,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 14),
-          ),
+  void showInitDialog() async {
+    bool confirmed = await showConfirmDialog<bool>(
+      context: context,
+      title: '$testName',
+      content: Container(
+        height: 130,
+        child: Text(
+          '$testDescription',
+          maxLines: 7,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: 14),
         ),
-        confirmText: '开始做题',
-        onConfirm: () {
-          starTimer();
-          Navigator.pop(context, true);
-        },
-      );
-    } else {
-      confirmed = await showConfirmDialog<bool>(
-        context: context,
-        title: '$testName',
-        content: Container(
-          height: 130,
-          child: Text(
-            '$testDescription',
-            maxLines: 7,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 14),
-          ),
-        ),
-        confirmText: '继续做题',
-        onConfirm: () {
-          starTimer();
-          Navigator.pop(context, true);
-        },
-      );
-    }
+      ),
+      confirmText: isFromRecord ? '继续做题' : '开始做题',
+      onConfirm: () {
+        // 等待题目加载完成才能允许做题
+        if (!isReady) {
+          ToastUtil.showText(text: '加载题目中请稍等');
+          return;
+        }
+        starTimer();
+        Navigator.pop(context, true);
+      },
+    );
 
     // 退出做题
     if (confirmed == null) {
@@ -160,7 +196,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
   }
 
   /// 退出做题
-  Future<bool> doQuit(BuildContext context) async {
+  Future<bool> doQuit() async {
     bool confirmed = await showCancelOkDialog<bool>(
       context: context,
       title: '提醒',
@@ -170,13 +206,26 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
     );
     if (confirmed is bool && confirmed) {
       // todo: 退出保存记录
+      RecordItem generatedRecordItem = RecordItem(
+        rid: recordItem?.rid,
+        costSeconds: _costSeconds,
+        isCompleted: false,
+        tid: testInfo?.tid ?? recordItem?.tid,
+        name: testInfo?.name ?? recordItem?.name,
+        description: testInfo?.description ?? recordItem?.description,
+        subject: testInfo?.subject ?? recordItem?.subject,
+        subjectId: testInfo?.subjectId ?? recordItem?.subjectId,
+        timeStamp: DateTime.now().millisecondsSinceEpoch,
+        doneNum: questions.where((q) => q.isChoiceQuestion && q.isFill).length,
+        questionNum: questions.where((q) => q.isChoiceQuestion).length,
+      );
       Navigator.pop(context);
     }
     return confirmed;
   }
 
   /// 弹出答题卡
-  void popAnswerCard(BuildContext context) async {
+  void popAnswerCard() async {
     await showBottomModal<bool>(
       context: context,
       backgroundColor: ColorM.C1,
@@ -184,10 +233,33 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
         questions: questions,
         // todo: 提交试卷，跳转结果，记录本次测试，做题累计（科目和总计）
         onSubmit: () {
+          // 生成/更新记录并上交保存
+          int choiceQuestionNum =
+              questions.where((q) => q.isChoiceQuestion).length;
+          int correctChoiceQuestionNum =
+              questions.where((q) => q.isChoiceQuestion && q.isCorrect).length;
+          RecordItem generatedRecordItem = RecordItem(
+            rid: recordItem?.rid,
+            costSeconds: _costSeconds,
+            isCompleted: true,
+            tid: testInfo?.tid ?? recordItem?.tid,
+            name: testInfo?.name ?? recordItem?.name,
+            description: testInfo?.description ?? recordItem?.description,
+            subject: testInfo?.subject ?? recordItem?.subject,
+            subjectId: testInfo?.subjectId ?? recordItem?.subjectId,
+            timeStamp: DateTime.now().millisecondsSinceEpoch,
+            doneNum:
+                questions.where((q) => q.isChoiceQuestion && q.isFill).length,
+            questionNum: choiceQuestionNum,
+            correctRate: correctChoiceQuestionNum * 100 ~/ choiceQuestionNum,
+          );
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TestResultPage(),
+              builder: (context) => TestResultPage(
+                recordItem: generatedRecordItem,
+                freshQuestions: questions,
+              ),
             ),
           );
         },
@@ -204,7 +276,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
   }
 
   /// 弹出纠错反馈
-  void popCorrectFeedback(BuildContext context) async {
+  void popCorrectFeedback() async {
     await showBottomModal(
       context: context,
       backgroundColor: Colors.transparent,
@@ -223,7 +295,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
   /// 下一题
   void doNext() {
     if (_isEndPage) {
-      popAnswerCard(context);
+      popAnswerCard();
     } else {
       _pageController.animateToPage(
         _curIndex + 1,
@@ -267,7 +339,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
               iconSize: 20,
               labelSize: 10,
               lineHeight: 1.5,
-              onTap: () => popAnswerCard(context),
+              onTap: popAnswerCard,
             ),
           ),
           Expanded(
@@ -277,7 +349,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
               iconSize: 20,
               labelSize: 10,
               lineHeight: 1.5,
-              onTap: () => popCorrectFeedback(context),
+              onTap: popCorrectFeedback,
             ),
           ),
         ],
@@ -328,58 +400,9 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
   @override
   void initState() {
     super.initState();
-    // todo: 如果只有testInfo，通过tid请求获取questions，初始化计数，提示开始做题
-    // 如果只有recordItem，通过rid请求record，通过tid请求questions并合并得到最终question，并恢复计数，提示继续做题
-    int tid = testInfo?.tid ?? recordItem?.tid;
-    List<Map<String, dynamic>> qs = [
-      {
-        'qid': 114514,
-        'type': 0,
-        'chapter': '物质世界和实践——哲学概述',
-        'chapterId': 233,
-        'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
-        'choices': ['两个', '三个', '四个', '五个'],
-        'correctChoices': [0],
-        'analysis': '无解析',
-      },
-      {
-        'qid': 114515,
-        'type': 1,
-        'chapter': '物质世界和实践——哲学概述',
-        'chapterId': 233,
-        'content': '生骸村三贤包括？',
-        'choices': ['维可', '袜子强', '贝拉弗', '嘛啊啊'],
-        'correctChoices': [0, 1, 2],
-        'analysis': '无解析',
-      },
-      {
-        'qid': 114516,
-        'type': 2,
-        'chapter': '物质世界和实践——哲学概述',
-        'chapterId': 233,
-        'content': '生骸村三贤包括？',
-        'correctBlank': '维可、袜子强、贝拉弗',
-        'analysis': '无解析',
-      }
-    ];
-    Map<int, List<int>> answerMap = {
-      114514: [0],
-      114515: [0, 1, 2],
-    };
-
-    qs.forEach((q) {
-      if (q['type'] < 2) {
-        int qid = q['qid'];
-        q['userChoices'] = answerMap[qid] ?? [];
-      }
-    });
-    questions = qs.map((q) => Question.fromJson(q)).toList();
-    questions.sort((a, b) => a.type.index.compareTo(b.type.index));
-
-    if (testInfo != null) {
-    } else if (recordItem != null) {}
+    initData();
     // 等待context出来
-    Future.delayed(Duration.zero, () => showInitDialog(context));
+    Future.delayed(Duration.zero, () => showInitDialog());
   }
 
   @override
@@ -392,7 +415,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => doQuit(context),
+      onWillPop: doQuit,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(

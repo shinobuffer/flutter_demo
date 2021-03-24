@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/component/loading_first_screen.dart';
 import 'package:flutter_demo/component/no_data_tip.dart';
 import 'package:flutter_demo/model/test_info.dart';
 import 'package:flutter_demo/pages/learning/question_bank/component/test_info_card.dart';
 import 'package:flutter_demo/pages/learning/question_bank/mixin/search_box_mixin.dart';
+import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
 class SimulationTestPage extends StatefulWidget {
@@ -20,73 +22,32 @@ class _SimulationTestPageState extends State<SimulationTestPage>
   String get subject => widget.arguments['subject'] as String;
   int get subjectId => widget.arguments['subjectId'] as int;
   // todo: 拉取已购和未购试题信息 purchasedTestInfos、moreTestInfos
-  List<TestInfo> purchasedTestInfos = [
-    TestInfo.fromJson({
-      'tid': 233,
-      'time': '2020-11-11',
-      'name': '2020年全国硕士研究生入学统一考试（政治）',
-      'description': '2020年考研政治',
-      'subject': '政治',
-      'subjectId': 233,
-      'publisher': '教育部',
-      'publisherId': 233,
-      'isFree': true,
-      'price': 0.0,
-      'questionNum': 50,
-      'doneNum': 2333,
-    }),
-  ];
+  List<TestInfo> purchasedTestInfos = [];
 
-  List<TestInfo> moreTestInfos = [
-    TestInfo.fromJson({
-      'tid': 233,
-      'time': '2020-11-11',
-      'name': '2020年全国硕士研究生入学统一考试（政治）',
-      'description': '2020年考研政治',
-      'subject': '政治',
-      'subjectId': 233,
-      'publisher': '教育部',
-      'publisherId': 233,
-      'isFree': false,
-      'price': 2.33,
-      'questionNum': 50,
-      'doneNum': 2333,
-    }),
-  ];
+  List<TestInfo> moreTestInfos = [];
 
-  List<TestInfo> curPurchasedTestInfos = [
-    TestInfo.fromJson({
-      'tid': 233,
-      'time': '2020-11-11',
-      'name': '2020年全国硕士研究生入学统一考试（政治）',
-      'description': '2020年考研政治',
-      'subject': '政治',
-      'subjectId': 233,
-      'publisher': '教育部',
-      'publisherId': 233,
-      'isFree': true,
-      'price': 0.0,
-      'questionNum': 50,
-      'doneNum': 2333,
-    }),
-  ];
+  List<TestInfo> curPurchasedTestInfos = [];
 
-  List<TestInfo> curMoreTestInfos = [
-    TestInfo.fromJson({
-      'tid': 233,
-      'time': '2020-11-11',
-      'name': '2020年全国硕士研究生入学统一考试（政治）',
-      'description': '2020年考研政治',
-      'subject': '政治',
-      'subjectId': 233,
-      'publisher': '教育部',
-      'publisherId': 233,
-      'isFree': false,
-      'price': 2.33,
-      'questionNum': 50,
-      'doneNum': 2333,
-    }),
-  ];
+  List<TestInfo> curMoreTestInfos = [];
+
+  Future<void> initFuture;
+
+  /// 首屏数据初始化，拉取试卷信息 testInfos
+  Future<void> initData() async {
+    var resp = await ApiService.getTestInfosBySubjectId(subjectId);
+    setState(() {
+      List<Map<String, dynamic>> testInfosJson =
+          resp.data['false']?.cast<Map<String, dynamic>>() ?? [];
+      List<TestInfo> testInfos =
+          testInfosJson.map((json) => TestInfo.fromJson(json)).toList();
+      purchasedTestInfos =
+          testInfos.where((testInfo) => testInfo.isPurchased).toList();
+      curPurchasedTestInfos = purchasedTestInfos;
+      moreTestInfos =
+          testInfos.where((testInfo) => !testInfo.isPurchased).toList();
+      curMoreTestInfos = moreTestInfos;
+    });
+  }
 
   /// 取消搜索，恢复数据
   @override
@@ -188,6 +149,7 @@ class _SimulationTestPageState extends State<SimulationTestPage>
   @override
   void initState() {
     super.initState();
+    initFuture = initData();
   }
 
   @override
@@ -197,25 +159,28 @@ class _SimulationTestPageState extends State<SimulationTestPage>
         title: Text('模拟题($subject)'),
         centerTitle: true,
       ),
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              getSearchBox(),
-              ...getSearchTitle(),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      _getPurchasedTest(),
-                      _getMoreTest(),
-                    ],
+      body: LoadingFirstScreen(
+        future: initFuture,
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                getSearchBox(),
+                ...getSearchTitle(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        _getPurchasedTest(),
+                        _getMoreTest(),
+                      ],
+                    ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ),
       ),

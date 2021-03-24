@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/component/base/progress_bar.dart';
 import 'package:flutter_demo/model/question.dart';
 import 'package:flutter_demo/model/record_item.dart';
+import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
 class TestResultPage extends StatefulWidget {
   TestResultPage({
     Key key,
-    // todo @required this.recordItem,
+    @required this.recordItem,
     this.freshQuestions,
   }) : super(key: key);
 
@@ -15,20 +16,21 @@ class TestResultPage extends StatefulWidget {
   final List<Question> freshQuestions;
 
   /// 如果只有recordItem没有freshQuestions，需要通过tid拉取questions并合成
-  final RecordItem recordItem = RecordItem.fromJson({
-    'rid': 233,
-    'costSeconds': 233,
-    'isCompleted': false,
-    'tid': 233,
-    'name': '2020年全国硕士研究生入学统一考试',
-    'description': '2020国考',
-    'subject': '政治',
-    'subjectId': 0,
-    'timeStamp': DateTime.now().millisecondsSinceEpoch,
-    'doneNum': 2,
-    'questionNum': 2,
-    'correctRate': 50,
-  });
+  final RecordItem recordItem;
+  // RecordItem.fromJson({
+  //   'rid': 233,
+  //   'costSeconds': 233,
+  //   'isCompleted': false,
+  //   'tid': 233,
+  //   'name': '2020年全国硕士研究生入学统一考试',
+  //   'description': '2020国考',
+  //   'subject': '政治',
+  //   'subjectId': 0,
+  //   'timeStamp': DateTime.now().millisecondsSinceEpoch,
+  //   'doneNum': 2,
+  //   'questionNum': 2,
+  //   'correctRate': 50,
+  // })
 
   @override
   _TestResultPageState createState() => _TestResultPageState();
@@ -41,12 +43,15 @@ class _TestResultPageState extends State<TestResultPage> {
     '未答': ColorM.C2,
   };
 
-  List<Question> generatedQuestions;
+  List<Question> generatedQuestions = [];
 
   /// 题型下标分界点，用于划分题型
   List<int> _breakPoints;
 
   RecordItem get recordItem => widget.recordItem;
+
+  /// 是否做题页面跳转过来的
+  bool get isFresh => widget.freshQuestions != null;
 
   /// 无论是传入还是合成，这里的questions应该是排过序的
   List<Question> get questions => widget.freshQuestions ?? generatedQuestions;
@@ -95,6 +100,50 @@ class _TestResultPageState extends State<TestResultPage> {
       return ColorM.G2;
     }
     return ColorM.R1;
+  }
+
+  /// 首屏数据初始化
+  /// 如果widget.freshQuestion为null（来自做题记录），通过recordItem中的tid拉取questions，通过recordItem中的rid拉取answerMap，合并得到最终questions
+  /// 如果widget.freshQuestion非null（来自做题页面结算），直接使用freshQuestion，什么都不用干
+  Future<void> initData() async {
+    if (!isFresh) {
+      print('[FROM RECORD<rid:${recordItem.rid}>]');
+      var resps =
+          await Future.wait([ApiService.getQuestionsOfTest(recordItem.tid)]);
+      List<Map<String, dynamic>> questionsJson = resps[0].data;
+      //  todo 通过rid获取answerMap，跟questionsJson合并
+      Map<int, List<int>> answerMap = {
+        25: [2],
+        26: [2],
+        27: [2],
+        28: [2],
+      };
+      questionsJson.forEach((q) {
+        if (q['type'] < 2) {
+          int qid = q['questionId'];
+          q['userChoices'] = answerMap[qid] ?? [];
+        }
+      });
+      List<Question> qs =
+          questionsJson.map((e) => Question.fromJson(e)).toList();
+      // 对问题排序，选择题优先
+      qs.sort((a, b) => a.type.index.compareTo(b.type.index));
+      generatedQuestions = qs;
+    } else {
+      print('[FROM TEST RECORD<rid:${recordItem.rid}>]');
+    }
+
+    List<int> breakPoints = [];
+    QuestionType curType;
+    List.generate(questions.length, (index) {
+      if (curType != questions[index].type) {
+        curType = questions[index].type;
+        breakPoints.add(index);
+      }
+    });
+    setState(() {
+      _breakPoints = breakPoints..add(questions.length);
+    });
   }
 
   /// 渲染答题结果头
@@ -342,64 +391,8 @@ class _TestResultPageState extends State<TestResultPage> {
 
   @override
   void initState() {
-    // todo 如果widget.freshQuestion 为null,通过recordItem中的rid、tid
-    // 拉取questions和answerMap并整合出最终questions
     super.initState();
-    List<Map<String, dynamic>> qs = [
-      {
-        'qid': 114514,
-        'type': 0,
-        'chapter': '物质世界和实践——哲学概述',
-        'chapterId': 233,
-        'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
-        'choices': ['两个', '三个', '四个', '五个'],
-        'correctChoices': [0],
-        'analysis': '无解析',
-      },
-      {
-        'qid': 114515,
-        'type': 1,
-        'chapter': '物质世界和实践——哲学概述',
-        'chapterId': 233,
-        'content': '生骸村三贤包括？',
-        'choices': ['维可', '袜子强', '贝拉弗', '嘛啊啊'],
-        'correctChoices': [0, 1, 2],
-        'analysis': '无解析',
-      },
-      {
-        'qid': 114516,
-        'type': 2,
-        'chapter': '物质世界和实践——哲学概述',
-        'chapterId': 233,
-        'content': '生骸村三贤包括？',
-        'correctBlank': '维可、袜子强、贝拉弗',
-        'analysis': '无解析',
-      }
-    ];
-    Map<int, List<int>> answerMap = {
-      114514: [0],
-      114515: [0, 1, 2],
-    };
-
-    qs.forEach((q) {
-      if (q['type'] < 2) {
-        int qid = q['qid'];
-        q['userChoices'] = answerMap[qid] ?? [];
-      }
-    });
-    generatedQuestions = qs.map((q) => Question.fromJson(q)).toList();
-    generatedQuestions.sort((a, b) => a.type.index.compareTo(b.type.index));
-
-    List<int> breakPoints = [];
-    QuestionType curType;
-    List.generate(questions.length, (index) {
-      if (curType != questions[index].type) {
-        curType = questions[index].type;
-        breakPoints.add(index);
-      }
-    });
-    _breakPoints = breakPoints..add(questions.length);
-    print(choiceQuestionNum);
+    initData();
   }
 
   @override

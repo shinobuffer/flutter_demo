@@ -71,7 +71,9 @@ class _TestInfoCardState extends State<TestInfoCard> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DoQuestionPage(),
+                  builder: (context) => DoQuestionPage(
+                    testInfo: testInfo,
+                  ),
                 ),
               );
             } else {

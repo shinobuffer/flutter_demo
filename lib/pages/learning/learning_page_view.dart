@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/model/test_info.dart';
 import 'package:flutter_demo/pages/learning/question_bank/component/test_info_card.dart';
+import 'package:flutter_demo/provide/global_provide.dart';
 import 'package:flutter_demo/utils/format_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
@@ -57,15 +58,19 @@ class _LearningPageViewState extends State<LearningPageView> {
   void _doClockOn() {}
 
   /// 渲染倒计时
-  /// todo: 获取考研年份计算
+  /// 获取考研年份计算
   Widget _getCountDown() {
+    int peeYear = int.tryParse(
+        getGlobalProvide(context).userInfo.peeYear ?? today.year.toString());
+    int restDay =
+        (peeYear - today.year + 1) * 365 - DateUtil.getDayOfYear(today);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('233天', style: TextStyleM.D0_28_B),
-          Text('2021考研倒计时'),
+          Text('$restDay天', style: TextStyleM.D0_28_B),
+          Text('$peeYear考研倒计时'),
         ],
       ),
     );

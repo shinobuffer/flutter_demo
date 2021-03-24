@@ -123,4 +123,49 @@ class ApiService {
       resp.data?.cast<Map<String, dynamic>>(),
     );
   }
+
+  /// 获取真题试卷列表
+  static Future<Resp<Map<String, dynamic>>> getTestInfosBySubjectId(
+    int subjectId,
+  ) async {
+    Resp<Map<String, dynamic>> resp = await dio.fetch(
+      '/sheet/sheetList',
+      queryParameters: {'subjectId': subjectId},
+    );
+    return resp;
+  }
+
+  /// 获取试卷的题目
+  static Future<Resp<List<Map<String, dynamic>>>> getQuestionsOfTest(
+    int tid,
+  ) async {
+    Resp resp = await dio.fetch(
+      '/sheet/questionList',
+      queryParameters: {'sheetId': tid},
+    );
+    resp.data = jsonDecode(resp.data ?? '[]');
+    return Resp(
+      resp.status,
+      resp.code,
+      resp.msg,
+      resp.data?.cast<Map<String, dynamic>>(),
+    );
+  }
+
+  /// 批量获取题目
+  static Future<Resp<List<Map<String, dynamic>>>> getQuestionsByQids(
+    List<int> qids,
+  ) async {
+    Resp resp = await dio.fetch(
+      '/sheet/questionList',
+      queryParameters: {'questionIds': qids.join(',')},
+    );
+    resp.data = jsonDecode(resp.data ?? '[]');
+    return Resp(
+      resp.status,
+      resp.code,
+      resp.msg,
+      resp.data?.cast<Map<String, dynamic>>(),
+    );
+  }
 }

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/component/image_set.dart';
 import 'package:flutter_demo/component/no_data_tip.dart';
 import 'package:flutter_demo/model/test_info.dart';
+import 'package:flutter_demo/provide/global_provide.dart';
+import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/style_util.dart';
+import 'package:flutter_demo/utils/toast_util.dart';
 
 class TestPurchasePage extends StatefulWidget {
   TestPurchasePage({Key key, @required this.testInfo}) : super(key: key);
@@ -16,14 +19,28 @@ class TestPurchasePage extends StatefulWidget {
 class _TestPurchasePageState extends State<TestPurchasePage> {
   TestInfo get testInfo => widget.testInfo;
 
-  /// todo 余额检查和订单提交
-  bool checkBalance() {
-    return false;
+  /// 提交按钮文案
+  String getSubmitBtnText() {
+    if (!getGlobalProvide(context).isLogin) {
+      return '请先登录';
+    } else {
+      return getGlobalProvide(context).userInfo.bCoin > testInfo.price
+          ? '购买试题'
+          : '余额不足';
+    }
   }
 
-  void onSubmitOrder() {
-    if (checkBalance()) {}
+  /// 检查能否提交（仅限登录且余额足够）
+  bool checkSubmitable() {
+    if (!getGlobalProvide(context).isLogin) {
+      return false;
+    } else {
+      return getGlobalProvide(context).userInfo.bCoin > testInfo.price;
+    }
   }
+
+  /// todo 订单提交
+  void onSubmitOrder() {}
 
   /// 渲染试卷信息1
   Widget _getTestInfo1() {
@@ -130,12 +147,6 @@ class _TestPurchasePageState extends State<TestPurchasePage> {
   }
 
   @override
-  void initState() {
-    // todo: 拉取订阅状态
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -170,8 +181,8 @@ class _TestPurchasePageState extends State<TestPurchasePage> {
                   disabledColor: Colors.white,
                   textColor: ColorM.O2,
                   disabledTextColor: ColorM.R2,
-                  child: Text(checkBalance() ? '购买试题' : '余额不足'),
-                  onPressed: checkBalance() ? onSubmitOrder : null,
+                  child: Text(getSubmitBtnText()),
+                  onPressed: checkSubmitable() ? onSubmitOrder : null,
                 ),
               ),
             ),

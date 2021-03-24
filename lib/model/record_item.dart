@@ -1,6 +1,21 @@
 class RecordItem {
   /// 不包含answerMap
-  RecordItem(Map<String, dynamic> json)
+  RecordItem({
+    this.rid,
+    this.costSeconds,
+    this.isCompleted,
+    this.tid,
+    this.name,
+    this.description,
+    this.subject,
+    this.subjectId,
+    this.timeStamp,
+    this.doneNum,
+    this.questionNum,
+    this.correctRate = 0,
+  });
+
+  RecordItem.fromJson(Map<String, dynamic> json)
       : rid = json['rid'],
         costSeconds = json['costSeconds'],
         isCompleted = json['isCompleted'],
@@ -13,8 +28,6 @@ class RecordItem {
         doneNum = json['doneNum'],
         questionNum = json['questionNum'],
         correctRate = json['correctRate'] ?? 0;
-
-  RecordItem.fromJson(Map<String, dynamic> json) : this(json);
 
   /// 记录id
   final int rid;
@@ -40,7 +53,7 @@ class RecordItem {
   /// 科目id
   final int subjectId;
 
-  /// 上次完成时间
+  /// 上次完成时间（ms时间戳）
   final int timeStamp;
 
   /// 完成题目数量（选择题）
@@ -51,6 +64,21 @@ class RecordItem {
 
   /// 正确率(百分号前面的整数，完成试卷后填入)
   final int correctRate;
+
+  Map<String, dynamic> toJson() => {
+        'rid': rid,
+        'costSeconds': costSeconds,
+        'isCompleted': isCompleted,
+        'tid': tid,
+        'name': name,
+        'description': description,
+        'subject': subject,
+        'subjectId': subjectId,
+        'timeStamp': timeStamp,
+        'doneNum': doneNum,
+        'questionNum': questionNum,
+        'correctRate': correctRate,
+      };
 
   @override
   String toString() {

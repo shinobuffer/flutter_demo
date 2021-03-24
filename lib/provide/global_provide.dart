@@ -22,19 +22,19 @@ class GlobalProvide with ChangeNotifier {
   UserInfo get userInfo => _userInfo;
 
   /// 自动登录，初始化用户状态，应用初始化时调用
-  void tryAutoLogin() {
+  Future<void> tryAutoLogin() async {
     String accessToken = SpUtil.getString('access_token');
     String refreshToken = SpUtil.getString('refresh_token');
     if (accessToken.isNotEmpty && refreshToken.isNotEmpty) {
       print('[AUTO LOGIN SUCC]');
       _token = accessToken;
       _isLogin = true;
-      updateUserInfo();
+      await updateUserInfo();
     }
   }
 
   /// 登录账号，初始化用户状态
-  void login({
+  Future<void> login({
     String accessToken,
     String refreshToken,
     Map<String, dynamic> userInfo,
@@ -62,7 +62,7 @@ class GlobalProvide with ChangeNotifier {
   }
 
   /// 更新用户信息
-  void updateUserInfo() async {
+  Future<void> updateUserInfo() async {
     // 没有登录，无法更新
     if (!isLogin) return;
     var resp = await ApiService.getUserInfo();

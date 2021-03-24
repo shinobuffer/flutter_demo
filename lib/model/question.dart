@@ -4,24 +4,27 @@ enum QuestionType {
   SingleChoice,
   MultiChoice,
   FillBlank,
+  Brief,
 }
 
 const List<String> QuestionStrTypes = ['单选题', '多选题', '填空题', '简答题'];
 
 class Question {
   Question(Map<String, dynamic> json)
-      : assert(json['qid'] is int),
-        assert(json['chapter'] is String),
-        assert(json['chapterId'] is int),
+      : assert(json['qid'] is int || json['questionId'] is int),
+        // todo: 暂时撤离保护
+        // assert(json['chapter'] is String),
+        // assert(json['chapterId'] is int),
         assert(json['content'] is String),
-        assert(json['choices'] == null || json['choices'] is List<String>),
+        assert(json['choices'] == null ||
+            json['choices']?.cast<String>() is List<String>),
         assert(json['correctChoices'] == null ||
-            json['correctChoices'] is List<int>),
+            json['correctChoices']?.cast<int>() is List<int>),
         assert(json['correctBlank'] == null || json['correctBlank'] is String),
         assert(json['analysis'] == null || json['analysis'] is String),
-        qid = json['qid'],
-        chapter = json['chapter'],
-        chapterId = json['chapterId'],
+        qid = json['qid'] ?? json['questionId'],
+        chapter = json['chapter'] ?? '无',
+        chapterId = json['chapterId'] ?? -1,
         content = json['content'],
         choices = json['choices']?.cast<String>() ?? [],
         correctChoices = json['correctChoices']?.cast<int>() ?? [],
@@ -39,6 +42,9 @@ class Question {
         break;
       case 2:
         type = QuestionType.FillBlank;
+        break;
+      case 3:
+        type = QuestionType.Brief;
         break;
       default:
         throw ArgumentError("json[type] should be non-null");
@@ -85,6 +91,7 @@ class Question {
       case QuestionType.MultiChoice:
         return userChoices.isNotEmpty;
       case QuestionType.FillBlank:
+      case QuestionType.Brief:
         return userBlank.isNotEmpty;
       default:
         return false;
@@ -98,6 +105,7 @@ class Question {
         return userChoices.length == correctChoices.length &&
             userChoices.toSet().containsAll(correctChoices);
       case QuestionType.FillBlank:
+      case QuestionType.Brief:
         return true;
       default:
         return false;
@@ -135,7 +143,7 @@ class Question {
   }
 
   void setBlank(String blank) {
-    if (type == QuestionType.FillBlank) {
+    if (type == QuestionType.FillBlank || type == QuestionType.Brief) {
       userBlank = blank;
     }
   }

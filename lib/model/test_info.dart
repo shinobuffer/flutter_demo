@@ -1,6 +1,6 @@
 class TestInfo {
   TestInfo(Map<String, dynamic> json)
-      : tid = json['tid'],
+      : tid = json['tid'] ?? json['sheetId'],
         time = json['time'],
         name = json['name'],
         description = json['description'],
@@ -10,7 +10,7 @@ class TestInfo {
         publisherId = json['publisherId'],
         isRealTest = json['isRealTest'],
         isFree = json['isFree'],
-        isPurchased = json['isPurchased'],
+        isPurchased = json['isPurchased'] ?? false, // 扩展字段保护
         price = json['price'],
         questionNum = json['questionNum'],
         doneNum = json['doneNum'];
