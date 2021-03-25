@@ -4,7 +4,9 @@ import 'package:flutter_demo/component/no_data_tip.dart';
 import 'package:flutter_demo/model/test_info.dart';
 import 'package:flutter_demo/pages/learning/question_bank/component/test_info_card.dart';
 import 'package:flutter_demo/pages/learning/question_bank/mixin/search_box_mixin.dart';
+import 'package:flutter_demo/provide/global_provide.dart';
 import 'package:flutter_demo/service/api_service.dart';
+import 'package:flutter_demo/utils/route_observer_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
 class SimulationTestPage extends StatefulWidget {
@@ -18,7 +20,7 @@ class SimulationTestPage extends StatefulWidget {
 }
 
 class _SimulationTestPageState extends State<SimulationTestPage>
-    with SearchBoxMixin {
+    with SearchBoxMixin, RouteAware {
   String get subject => widget.arguments['subject'] as String;
   int get subjectId => widget.arguments['subjectId'] as int;
   // todo: 拉取已购和未购试题信息 purchasedTestInfos、moreTestInfos
@@ -34,10 +36,12 @@ class _SimulationTestPageState extends State<SimulationTestPage>
 
   /// 首屏数据初始化，拉取试卷信息 testInfos
   Future<void> initData() async {
-    var resp = await ApiService.getTestInfosBySubjectId(subjectId);
+    var resp = await ApiService.getTestInfosBySubjectId(
+      subjectId: subjectId,
+      isFree: false,
+    );
     setState(() {
-      List<Map<String, dynamic>> testInfosJson =
-          resp.data['false']?.cast<Map<String, dynamic>>() ?? [];
+      List<Map<String, dynamic>> testInfosJson = resp.data;
       List<TestInfo> testInfos =
           testInfosJson.map((json) => TestInfo.fromJson(json)).toList();
       purchasedTestInfos =
@@ -150,6 +154,28 @@ class _SimulationTestPageState extends State<SimulationTestPage>
   void initState() {
     super.initState();
     initFuture = initData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 添加路由监听
+    RouteObserverUtil.routeObserver.subscribe(this, ModalRoute.of(context));
+  }
+
+  @override
+  void didPopNext() {
+    super.didPopNext();
+    // 从购买页返回，刷新余额信息并刷新题目
+    getGlobalProvide(context).updateUserInfo();
+    initData();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    // 移除路由监听
+    RouteObserverUtil.routeObserver.unsubscribe(this);
   }
 
   @override

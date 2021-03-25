@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/component/no_data_tip.dart';
 import 'package:flutter_demo/model/record_item.dart';
 import 'package:flutter_demo/pages/learning/question_bank/do_question_page.dart';
+import 'package:flutter_demo/pages/learning/question_bank/test_result_page.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
 class RecordTestPage extends StatefulWidget {
@@ -52,17 +53,21 @@ class _RecordTestPageState extends State<RecordTestPage> {
   /// todo: 记录跳转
   void jumpRecordTest(RecordItem item) {
     if (item.isCompleted) {
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (context) => TestResultPage(),
-      //   ),
-      // );
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TestResultPage(
+            recordItem: item,
+          ),
+        ),
+      );
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => DoQuestionPage(),
+          builder: (context) => DoQuestionPage(
+            recordItem: item,
+          ),
         ),
       );
     }

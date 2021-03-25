@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/component/base/progress_bar.dart';
 import 'package:flutter_demo/model/question.dart';
 import 'package:flutter_demo/model/record_item.dart';
+import 'package:flutter_demo/model/wrong_item.dart';
+import 'package:flutter_demo/pages/learning/question_bank/wrong_test/wrong_question_page.dart';
 import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/style_util.dart';
+import 'package:flutter_demo/utils/toast_util.dart';
 
 class TestResultPage extends StatefulWidget {
   TestResultPage({
@@ -42,6 +45,9 @@ class _TestResultPageState extends State<TestResultPage> {
     '错误': ColorM.R1,
     '未答': ColorM.C2,
   };
+
+  /// 题目初始化是否完成
+  bool isReady = false;
 
   List<Question> generatedQuestions = [];
 
@@ -86,12 +92,6 @@ class _TestResultPageState extends State<TestResultPage> {
   /// 选择题正确率
   int get correctPercentage => recordItem.correctRate;
 
-  /// 错误的选择题
-  List<Question> get wrongQuestions => questions
-      .sublist(0, choiceQuestionNum)
-      .where((q) => !q.isCorrect)
-      .toList();
-
   /// 获取题目对错颜色
   static Color getColor(bool isFill, bool isCorrect) {
     if (!isFill) {
@@ -108,8 +108,9 @@ class _TestResultPageState extends State<TestResultPage> {
   Future<void> initData() async {
     if (!isFresh) {
       print('[FROM RECORD<rid:${recordItem.rid}>]');
-      var resps =
-          await Future.wait([ApiService.getQuestionsOfTest(recordItem.tid)]);
+      var resps = await Future.wait([
+        ApiService.getQuestionsOfTest(recordItem.tid),
+      ]);
       List<Map<String, dynamic>> questionsJson = resps[0].data;
       //  todo 通过rid获取answerMap，跟questionsJson合并
       Map<int, List<int>> answerMap = {
@@ -142,9 +143,65 @@ class _TestResultPageState extends State<TestResultPage> {
       }
     });
     setState(() {
+      isReady = true;
       _breakPoints = breakPoints..add(questions.length);
     });
   }
+
+  /// 通用查看解析跳转
+  void jumpAnalysis(List<Question> _questions, {int index = 0}) {
+    if (!isReady) {
+      ToastUtil.showText(text: '加载中请稍等');
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => WrongQuestionPage(
+          wrongItem: WrongItem(
+            name: recordItem.name,
+            tid: recordItem.tid,
+            questionIds: _questions.map((question) => question.qid).toList(),
+          ),
+          freshQuestions: _questions,
+          freshIndex: index,
+        ),
+      ),
+    );
+  }
+
+  /// 查看某选择题错题解析（使用WrongQuestionPage）
+  void jumpChoiceAnalysis(int index) {
+    List<Question> choiceQuestions =
+        questions.where((question) => question.isChoiceQuestion).toList();
+    jumpAnalysis(choiceQuestions, index: index);
+  }
+
+  /// 查看非选择题的解析（使用WrongQuestionPage）
+  void jumpNotChoiceAnalysis() {
+    List<Question> notChoiceQuestions =
+        questions.where((question) => !question.isChoiceQuestion).toList();
+    jumpAnalysis(notChoiceQuestions);
+  }
+
+  /// 查看错题（选择题）的解析（使用WrongQuestionPage）
+  void jumpWrongAnalysis() {
+    List<Question> wrongQuestions =
+        questions.where((q) => q.isChoiceQuestion && !q.isCorrect).toList();
+    if (wrongQuestions.isEmpty && isReady) {
+      ToastUtil.showText(text: '太厉害了，全对没错题');
+      return;
+    }
+    jumpAnalysis(wrongQuestions);
+  }
+
+  /// 查看全部解析（使用WrongQuestionPage）
+  void jumpAllAnalysis() {
+    jumpAnalysis(questions);
+  }
+
+  /// todo 重做试题
+  void redoTest() {}
 
   /// 渲染答题结果头
   Widget _getHeader() {
@@ -302,7 +359,7 @@ class _TestResultPageState extends State<TestResultPage> {
                         child: FlatButton(
                           padding: EdgeInsets.zero,
                           onPressed: () {
-                            // todo: 跳转到指定题目
+                            jumpChoiceAnalysis(qIndex);
                           },
                           child: Text(
                             '${qIndex + 1}',
@@ -330,9 +387,7 @@ class _TestResultPageState extends State<TestResultPage> {
                       '查看解析',
                       style: TextStyleM.G1,
                     ),
-                    onTap: () {
-                      //todo: 非选择题解析
-                    },
+                    onTap: jumpNotChoiceAnalysis,
                   ),
                 ],
               ),
@@ -362,25 +417,24 @@ class _TestResultPageState extends State<TestResultPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // todo: 逻辑待填充
           Expanded(
             child: FlatButton(
               textColor: ColorM.C5,
-              onPressed: () {},
+              onPressed: jumpWrongAnalysis,
               child: Text('错题解析'),
             ),
           ),
           Expanded(
             child: FlatButton(
               textColor: ColorM.C5,
-              onPressed: () {},
+              onPressed: jumpAllAnalysis,
               child: Text('全部解析'),
             ),
           ),
           Expanded(
             child: FlatButton(
               textColor: ColorM.C5,
-              onPressed: () {},
+              onPressed: redoTest,
               child: Text('重新做题'),
             ),
           ),

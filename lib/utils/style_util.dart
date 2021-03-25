@@ -136,3 +136,22 @@ class NoSplash extends InteractiveInkFeature {
   @override
   void paintFeature(Canvas canvas, Matrix4 transform) {}
 }
+
+class NoSplashScrollBehavior extends ScrollBehavior {
+  @override
+  Widget buildViewportChrome(
+      BuildContext context, Widget child, AxisDirection axisDirection) {
+    if (getPlatform(context) == TargetPlatform.android ||
+        getPlatform(context) == TargetPlatform.fuchsia) {
+      return GlowingOverscrollIndicator(
+        child: child,
+        showLeading: false,
+        showTrailing: false,
+        axisDirection: axisDirection,
+        color: Theme.of(context).accentColor,
+      );
+    } else {
+      return child;
+    }
+  }
+}

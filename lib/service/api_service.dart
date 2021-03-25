@@ -124,15 +124,28 @@ class ApiService {
     );
   }
 
-  /// 获取真题试卷列表
-  static Future<Resp<Map<String, dynamic>>> getTestInfosBySubjectId(
+  /// 购买模拟卷
+  static Future<Resp<Null>> purchaseSimTest(int tid) async {
+    Resp<Null> resp = await dio.post('/sheet/purchase/$tid');
+    return resp;
+  }
+
+  /// 获取真题/模拟试卷列表
+  static Future<Resp<List<Map<String, dynamic>>>> getTestInfosBySubjectId({
     int subjectId,
-  ) async {
-    Resp<Map<String, dynamic>> resp = await dio.fetch(
-      '/sheet/sheetList',
+    bool isFree,
+  }) async {
+    Resp resp = await dio.fetch(
+      '/sheet/sheetList/${isFree ? "free" : "notFree"}',
       queryParameters: {'subjectId': subjectId},
     );
-    return resp;
+    resp.data = jsonDecode(resp.data ?? '[]');
+    return Resp(
+      resp.status,
+      resp.code,
+      resp.msg,
+      resp.data?.cast<Map<String, dynamic>>(),
+    );
   }
 
   /// 获取试卷的题目

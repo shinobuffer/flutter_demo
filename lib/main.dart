@@ -8,6 +8,7 @@ import 'package:flutter_demo/pages/mine/mine_page_veiw.dart';
 import 'package:flutter_demo/provide/global_provide.dart';
 import 'package:flutter_demo/route.dart';
 import 'package:flutter_demo/service/api_service.dart';
+import 'package:flutter_demo/utils/route_observer_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 import 'package:flutter_demo/utils/toast_util.dart';
 import 'package:provider/provider.dart';
@@ -34,7 +35,10 @@ class MyApp extends StatelessWidget {
       create: (_) => GlobalProvide(),
       child: MaterialApp(
         builder: BotToastInit(),
-        navigatorObservers: [BotToastNavigatorObserver()],
+        navigatorObservers: [
+          BotToastNavigatorObserver(),
+          RouteObserverUtil.routeObserver,
+        ],
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(

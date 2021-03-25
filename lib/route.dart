@@ -45,6 +45,10 @@ final RouteFactory onGenerateRoute = (RouteSettings settings) {
     return MaterialPageRoute(
       builder: (context) =>
           pageBuilder(context, arguments: settings.arguments ?? {}),
+      settings: RouteSettings(
+        name: routeName,
+        arguments: settings.arguments ?? {},
+      ),
     );
   }
   return MaterialPageRoute(builder: (context) => _NotFindPage());

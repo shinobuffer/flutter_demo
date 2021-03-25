@@ -29,10 +29,12 @@ class _RealTestPageState extends State<RealTestPage> with SearchBoxMixin {
 
   /// 首屏数据初始化，拉取试卷信息 testInfos
   Future<void> initData() async {
-    var resp = await ApiService.getTestInfosBySubjectId(subjectId);
+    var resp = await ApiService.getTestInfosBySubjectId(
+      subjectId: subjectId,
+      isFree: true,
+    );
     setState(() {
-      List<Map<String, dynamic>> testInfosJson =
-          resp.data['true']?.cast<Map<String, dynamic>>() ?? [];
+      List<Map<String, dynamic>> testInfosJson = resp.data;
       testInfos = testInfosJson.map((json) => TestInfo.fromJson(json)).toList();
       curTestInfos = testInfos;
     });

@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/model/collect_item.dart';
 import 'package:flutter_demo/model/question.dart';
 import 'package:flutter_demo/pages/learning/question_bank/component/question_page_view.dart';
+import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
 class CollectQuestionPage extends StatefulWidget {
-  CollectQuestionPage({Key key, this.collectItem}) : super(key: key);
+  CollectQuestionPage({
+    Key key,
+    @required this.collectItem,
+  }) : super(key: key);
 
   final CollectItem collectItem;
 
@@ -18,53 +22,9 @@ class _CollectQuestionPageState extends State<CollectQuestionPage> {
     borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
   );
 
-  // todo： 拉取收藏题目
-  CollectItem collectItem = CollectItem.fromJson({
-    'tid': 233,
-    'name': '2020年全国硕士研究生入学统一考试',
-    'questionIds': [1, 2, 3],
-  });
+  CollectItem get collectItem => widget.collectItem;
 
-  List<Question> questions = [
-    Question.fromJson(
-      {
-        'qid': 114511,
-        'type': 0,
-        'chapter': '物质世界和实践——哲学概述',
-        'chapterId': 233,
-        'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
-        'choices': ['两个', '三个', '四个', '五个'],
-        'correctChoices': [0],
-        'userChoices': [0],
-        'analysis': '无解析',
-      },
-    ),
-    Question.fromJson(
-      {
-        'qid': 114512,
-        'type': 1,
-        'chapter': '物质世界和实践——哲学概述',
-        'chapterId': 233,
-        'content': '生骸村三贤包括？',
-        'choices': ['维可', '袜子强', '贝拉弗', '嘛啊啊'],
-        'correctChoices': [0, 1, 2],
-        'userChoices': [0, 1, 2],
-        'analysis': '无解析',
-      },
-    ),
-    Question.fromJson(
-      {
-        'qid': 114513,
-        'type': 2,
-        'chapter': '物质世界和实践——哲学概述',
-        'chapterId': 233,
-        'content': '生骸村三贤包括？',
-        'correctBlank': '维可、袜子强、贝拉弗',
-        'userBlank': '555',
-        'analysis': '无解析',
-      },
-    ),
-  ];
+  List<Question> questions = [];
 
   /// 移出收藏夹的题目id
   final List<int> removedQuestionIds = [];
@@ -76,7 +36,21 @@ class _CollectQuestionPageState extends State<CollectQuestionPage> {
   int get _pageNum => collectItem.questionIds.length;
   bool get _isEndPage => _curPage == _pageNum;
 
-  /// todo: 错题状态反转，发送请求
+  /// todo 首屏数据初始化，通过collectItem中的qids拉取收藏questions
+  Future<void> initData() async {
+    // 收藏夹跳转而来，拉取questions
+    print('[COLLECT QUESTIONS FROM COLLECT<tid:${collectItem.tid}>]');
+    var resp = await ApiService.getQuestionsByQids(collectItem.questionIds);
+    List<Map<String, dynamic>> questionsJson = resp.data;
+    List<Question> qs = questionsJson.map((e) => Question.fromJson(e)).toList();
+    // 对问题排序，选择题优先
+    qs.sort((a, b) => a.type.index.compareTo(b.type.index));
+    setState(() {
+      questions = qs;
+    });
+  }
+
+  /// todo: 收藏状态反转，发送请求
   void toggleCollect(int questionId) {
     if (removedQuestionIds.contains(questionId)) {
       setState(() {
@@ -103,7 +77,7 @@ class _CollectQuestionPageState extends State<CollectQuestionPage> {
   /// 渲染顶部标题
   Widget _getTitle() {
     return Container(
-      height: 50,
+      height: 45,
       padding: EdgeInsets.symmetric(horizontal: 25),
       alignment: Alignment.center,
       decoration: BoxDecoration(
@@ -171,6 +145,7 @@ class _CollectQuestionPageState extends State<CollectQuestionPage> {
   @override
   void initState() {
     super.initState();
+    initData();
   }
 
   @override
@@ -182,7 +157,7 @@ class _CollectQuestionPageState extends State<CollectQuestionPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('错题集'),
+          title: Text('收藏夹'),
           centerTitle: true,
           actions: [
             Container(

@@ -2,12 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/model/question.dart';
 import 'package:flutter_demo/model/wrong_item.dart';
 import 'package:flutter_demo/pages/learning/question_bank/component/question_page_view.dart';
+import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
 class WrongQuestionPage extends StatefulWidget {
-  WrongQuestionPage({Key key, this.wrongItem}) : super(key: key);
+  WrongQuestionPage({
+    Key key,
+    @required this.wrongItem,
+    this.freshQuestions,
+    this.freshIndex = 0,
+  }) : super(key: key);
 
   final WrongItem wrongItem;
+
+  /// 由刚试卷结果页传入，可以直接使用
+  final List<Question> freshQuestions;
+
+  /// 由刚试卷结果页传入，指定了初始题目index
+  final int freshIndex;
 
   @override
   _WrongQuestionPageState createState() => _WrongQuestionPageState();
@@ -18,53 +30,55 @@ class _WrongQuestionPageState extends State<WrongQuestionPage> {
     borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
   );
 
-  // todo： 拉取错题
-  WrongItem wrongItem = WrongItem.fromJson({
-    'tid': 233,
-    'name': '2020年全国硕士研究生入学统一考试',
-    'questionIds': [1, 2, 3],
-  });
+  List<Question> generatedQuestions = [];
 
-  List<Question> questions = [
-    Question.fromJson(
-      {
-        'qid': 114511,
-        'type': 0,
-        'chapter': '物质世界和实践——哲学概述',
-        'chapterId': 233,
-        'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
-        'choices': ['两个', '三个', '四个', '五个'],
-        'correctChoices': [0],
-        'userChoices': [0],
-        'analysis': '无解析',
-      },
-    ),
-    Question.fromJson(
-      {
-        'qid': 114512,
-        'type': 1,
-        'chapter': '物质世界和实践——哲学概述',
-        'chapterId': 233,
-        'content': '生骸村三贤包括？',
-        'choices': ['维可', '袜子强', '贝拉弗', '嘛啊啊'],
-        'correctChoices': [0, 1, 2],
-        'userChoices': [0, 1, 2],
-        'analysis': '无解析',
-      },
-    ),
-    Question.fromJson(
-      {
-        'qid': 114513,
-        'type': 2,
-        'chapter': '物质世界和实践——哲学概述',
-        'chapterId': 233,
-        'content': '生骸村三贤包括？',
-        'correctBlank': '维可、袜子强、贝拉弗',
-        'userBlank': '555',
-        'analysis': '无解析',
-      },
-    ),
-  ];
+  WrongItem get wrongItem => widget.wrongItem;
+
+  /// 是否从结算页跳转过来的
+  bool get isFresh => widget.freshQuestions != null;
+
+  List<Question> get questions => widget.freshQuestions ?? generatedQuestions;
+
+  // List<Question> questions = [
+  //   Question.fromJson(
+  //     {
+  //       'qid': 114511,
+  //       'type': 0,
+  //       'chapter': '物质世界和实践——哲学概述',
+  //       'chapterId': 233,
+  //       'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
+  //       'choices': ['两个', '三个', '四个', '五个'],
+  //       'correctChoices': [0],
+  //       'userChoices': [0],
+  //       'analysis': '无解析',
+  //     },
+  //   ),
+  //   Question.fromJson(
+  //     {
+  //       'qid': 114512,
+  //       'type': 1,
+  //       'chapter': '物质世界和实践——哲学概述',
+  //       'chapterId': 233,
+  //       'content': '生骸村三贤包括？',
+  //       'choices': ['维可', '袜子强', '贝拉弗', '嘛啊啊'],
+  //       'correctChoices': [0, 1, 2],
+  //       'userChoices': [0, 1, 2],
+  //       'analysis': '无解析',
+  //     },
+  //   ),
+  //   Question.fromJson(
+  //     {
+  //       'qid': 114513,
+  //       'type': 2,
+  //       'chapter': '物质世界和实践——哲学概述',
+  //       'chapterId': 233,
+  //       'content': '生骸村三贤包括？',
+  //       'correctBlank': '维可、袜子强、贝拉弗',
+  //       'userBlank': '555',
+  //       'analysis': '无解析',
+  //     },
+  //   ),
+  // ];
 
   /// 移出错题集的题目id
   final List<int> removedQuestionIds = [];
@@ -75,6 +89,50 @@ class _WrongQuestionPageState extends State<WrongQuestionPage> {
   int get _curPage => _curIndex + 1;
   int get _pageNum => wrongItem.questionIds.length;
   bool get _isEndPage => _curPage == _pageNum;
+
+  /// todo 首屏数据初始化
+  /// 如果widget.freshQuestion为null（来自做题错题集），通过wrongItem中的qids拉取错误questions，并拉取answerMap
+  /// 如果widget.freshQuestion非null（来自做题页面结算），直接使用freshQuestion，什么都不用干
+  Future<void> initData() async {
+    if (!isFresh) {
+      // 错题集跳转而来，拉取questions和answerMap
+      print('[WRONG QUESTIONS FROM WRONG<tid:${wrongItem.tid}>]');
+      var resps = await Future.wait([
+        ApiService.getQuestionsByQids(wrongItem.questionIds),
+      ]);
+      List<Map<String, dynamic>> questionsJson = resps[0].data;
+      Map<int, List<int>> answerMap = {
+        25: [2],
+        26: [2],
+        27: [2],
+        28: [2],
+      };
+      questionsJson.forEach((q) {
+        if (q['type'] < 2) {
+          int qid = q['questionId'];
+          q['userChoices'] = answerMap[qid] ?? [];
+        }
+      });
+      List<Question> qs =
+          questionsJson.map((e) => Question.fromJson(e)).toList();
+      // 对问题排序，选择题优先
+      qs.sort((a, b) => a.type.index.compareTo(b.type.index));
+      setState(() {
+        generatedQuestions = qs;
+      });
+    } else {
+      // 试卷结果页跳转而来，跳转到指定题目
+      Future.delayed(
+        Duration.zero,
+        () => _pageController.animateToPage(
+          widget.freshIndex,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        ),
+      );
+      print('[ANALYSIS FROM RESULT_PAGE<tid:${wrongItem.tid}>]');
+    }
+  }
 
   /// todo: 错题状态反转，发送请求
   void toggleWrong(int questionId) {
@@ -103,7 +161,7 @@ class _WrongQuestionPageState extends State<WrongQuestionPage> {
   /// 渲染顶部标题
   Widget _getTitle() {
     return Container(
-      height: 50,
+      height: 45,
       padding: EdgeInsets.symmetric(horizontal: 25),
       alignment: Alignment.center,
       decoration: BoxDecoration(
@@ -133,26 +191,27 @@ class _WrongQuestionPageState extends State<WrongQuestionPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          RaisedButton(
-            color: Colors.white,
-            elevation: 5,
-            shape: _bottomBtnShape,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  removedQuestionIds.contains(_curQuestionId)
-                      ? Icons.redo_rounded
-                      : Icons.delete_outline_rounded,
-                ),
-                Text(
-                  removedQuestionIds.contains(_curQuestionId) ? '取消删除' : '删除',
-                ),
-              ],
+          if (!isFresh)
+            RaisedButton(
+              color: Colors.white,
+              elevation: 5,
+              shape: _bottomBtnShape,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    removedQuestionIds.contains(_curQuestionId)
+                        ? Icons.redo_rounded
+                        : Icons.delete_outline_rounded,
+                  ),
+                  Text(
+                    removedQuestionIds.contains(_curQuestionId) ? '取消删除' : '删除',
+                  ),
+                ],
+              ),
+              onPressed: () => toggleWrong(_curQuestionId),
             ),
-            onPressed: () => toggleWrong(_curQuestionId),
-          ),
-          SizedBox(width: 15),
+          if (!isFresh) SizedBox(width: 15),
           Expanded(
             child: RaisedButton(
               color: Colors.white,
@@ -170,8 +229,8 @@ class _WrongQuestionPageState extends State<WrongQuestionPage> {
 
   @override
   void initState() {
-    // todo: 需要通过tid拉取错误的questions（需要带userAnswer，由后端合成或前端合成）
     super.initState();
+    initData();
   }
 
   @override
@@ -183,7 +242,7 @@ class _WrongQuestionPageState extends State<WrongQuestionPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('错题集'),
+          title: Text(isFresh ? '题目解析' : '错题集'),
           centerTitle: true,
           actions: [
             Container(

@@ -154,36 +154,32 @@ class _QuestionPageViewState extends State<QuestionPageView> {
 
   /// 渲染题目解析
   Widget getAnsweranalysis() {
-    return Expanded(
-      child: SingleChildScrollView(
-        child: Container(
-          width: double.maxFinite,
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: ColorM.C1,
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-          child: DefaultTextStyle(
-            style: TextStyleM.D7_13,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '题目解析',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Divider(height: 6),
-                Text('${question.analysis ?? "无"}'),
-                SizedBox(height: 10),
-                Text(
-                  '核心考点',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Divider(height: 6),
-                Text('${question.chapter}'),
-              ],
+    return Container(
+      width: double.maxFinite,
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: ColorM.C1,
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      child: DefaultTextStyle(
+        style: TextStyleM.D7_13,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '题目解析',
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
-          ),
+            Divider(height: 6),
+            Text('${question.analysis ?? "无"}'),
+            SizedBox(height: 10),
+            Text(
+              '核心考点',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Divider(height: 6),
+            Text('${question.chapter}'),
+          ],
         ),
       ),
     );
@@ -198,33 +194,37 @@ class _QuestionPageViewState extends State<QuestionPageView> {
       }
       renderWidgets.add(getAnsweranalysis());
     }
-    return Container(
-      height: double.maxFinite,
-      padding: EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 题目内容
-          Container(
-            margin: EdgeInsets.only(bottom: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${QuestionStrTypes[question.type.index]}',
-                  style: TextStyleM.D1_12,
+    return ScrollConfiguration(
+      behavior: NoSplashScrollBehavior(),
+      child: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 题目内容
+              Container(
+                margin: EdgeInsets.only(bottom: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${QuestionStrTypes[question.type.index]}',
+                      style: TextStyleM.D1_12,
+                    ),
+                    Text(
+                      '    ${question.content}${question.isMultiChoice ? "(多选)" : ""}',
+                    ),
+                  ],
                 ),
-                Text(
-                  '    ${question.content}${question.isMultiChoice ? "(多选)" : ""}',
-                ),
-              ],
-            ),
+              ),
+              // 答题区
+              getAnswerArea(),
+              // 题目答案和题目解析
+              ...renderWidgets,
+            ],
           ),
-          // 答题区
-          getAnswerArea(),
-          // 题目答案和题目解析
-          ...renderWidgets,
-        ],
+        ),
       ),
     );
   }

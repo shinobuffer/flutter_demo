@@ -1,10 +1,14 @@
 class WrongItem {
-  WrongItem(Map<String, dynamic> json)
+  WrongItem({
+    this.tid,
+    this.name,
+    this.questionIds,
+  });
+
+  WrongItem.fromJson(Map<String, dynamic> json)
       : tid = json['tid'],
         name = json['name'],
         questionIds = json['questionIds']?.cast<int>() ?? [];
-
-  WrongItem.fromJson(Map<String, dynamic> json) : this(json);
 
   /// 试卷编号
   final int tid;

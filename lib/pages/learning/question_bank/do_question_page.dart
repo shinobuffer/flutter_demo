@@ -147,6 +147,11 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
     List<Question> qs = questionsJson.map((e) => Question.fromJson(e)).toList();
     // 对问题排序，选择题优先
     qs.sort((a, b) => a.type.index.compareTo(b.type.index));
+    // 空白试卷不允许做
+    if (qs.isEmpty) {
+      ToastUtil.showText(text: '空白试卷！');
+      return;
+    }
     setState(() {
       isReady = true;
       questions = qs;
@@ -253,7 +258,8 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
             questionNum: choiceQuestionNum,
             correctRate: correctChoiceQuestionNum * 100 ~/ choiceQuestionNum,
           );
-          Navigator.push(
+          // 移除做题路由，推入试卷结果路由
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => TestResultPage(
@@ -261,6 +267,8 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
                 freshQuestions: questions,
               ),
             ),
+            (route) =>
+                route.settings?.name?.startsWith('/question_bank') ?? false,
           );
         },
         onJump: (int index) {

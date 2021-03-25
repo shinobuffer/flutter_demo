@@ -25,6 +25,10 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
+ def keystorePropertiesFile = rootProject.file("key.properties")
+ def keystoreProperties = new Properties() 
+ keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
     compileSdkVersion 29
 
@@ -38,18 +42,31 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        // APPID
         applicationId "com.example.flutter_demo"
+        // 可运行应用的最低版本的 Android 平台，由该平台的 API 级别标识符指定
         minSdkVersion 16
+        // 指定运行应用的目标 API 级别。
+        // 在某些情况下，这允许应用使用在目标 API 级别中定义的清单元素或行为，
+        // 而不是仅限于使用那些针对最低 API 级别定义的元素或行为。
         targetSdkVersion 29
+        //内部版本号
         versionCode flutterVersionCode.toInteger()
+        //对外公布的版本号
         versionName flutterVersionName
     }
 
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 }

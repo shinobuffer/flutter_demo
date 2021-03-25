@@ -19,9 +19,14 @@ class TestPurchasePage extends StatefulWidget {
 class _TestPurchasePageState extends State<TestPurchasePage> {
   TestInfo get testInfo => widget.testInfo;
 
+  /// 交易请求结束前，禁止再次交易
+  bool isTrading = false;
+
   /// 提交按钮文案
   String getSubmitBtnText() {
-    if (!getGlobalProvide(context).isLogin) {
+    if (isTrading) {
+      return '购买中';
+    } else if (!getGlobalProvide(context).isLogin) {
       return '请先登录';
     } else {
       return getGlobalProvide(context).userInfo.bCoin > testInfo.price
@@ -32,15 +37,29 @@ class _TestPurchasePageState extends State<TestPurchasePage> {
 
   /// 检查能否提交（仅限登录且余额足够）
   bool checkSubmitable() {
-    if (!getGlobalProvide(context).isLogin) {
+    if (!getGlobalProvide(context).isLogin || isTrading) {
       return false;
     } else {
       return getGlobalProvide(context).userInfo.bCoin > testInfo.price;
     }
   }
 
-  /// todo 订单提交
-  void onSubmitOrder() {}
+  /// 订单提交
+  void doSubmitOrder() {
+    setState(() {
+      isTrading = true;
+    });
+    ApiService.purchaseSimTest(testInfo.tid).then((resp) {
+      ToastUtil.showText(text: resp.msg);
+      if (resp.isSucc) Navigator.pop(context, true);
+      setState(() {
+        isTrading = false;
+      });
+    });
+  }
+
+  /// todo 订阅
+  void doSubscribe() {}
 
   /// 渲染试卷信息1
   Widget _getTestInfo1() {
@@ -115,9 +134,7 @@ class _TestPurchasePageState extends State<TestPurchasePage> {
                       '订阅',
                       style: TextStyleM.D0_12,
                     ),
-                    onPressed: () {
-                      // todo: 订阅逻辑
-                    },
+                    onPressed: doSubscribe,
                   ),
                 ),
               ],
@@ -182,7 +199,7 @@ class _TestPurchasePageState extends State<TestPurchasePage> {
                   textColor: ColorM.O2,
                   disabledTextColor: ColorM.R2,
                   child: Text(getSubmitBtnText()),
-                  onPressed: checkSubmitable() ? onSubmitOrder : null,
+                  onPressed: checkSubmitable() ? doSubmitOrder : null,
                 ),
               ),
             ),

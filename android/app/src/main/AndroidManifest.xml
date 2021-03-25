@@ -7,8 +7,8 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="flutter_demo"
-        android:icon="@mipmap/ic_launcher">
+        android:label="o皿o"
+        android:icon="@mipmap/favicon">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -44,4 +44,8 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <!-- 权限配置 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 </manifest>

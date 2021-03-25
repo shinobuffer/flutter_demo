@@ -30,6 +30,7 @@ class Question {
         correctChoices = json['correctChoices']?.cast<int>() ?? [],
         correctBlank = json['correctBlank'] ?? '',
         analysis = json['analysis'],
+        isCollected = json['isCollected'] ?? false,
         userChoices = json['userChoices']?.cast<int>() ?? [],
         userBlank = json['userBlank'] ?? '' {
     // 题目类型识别
@@ -78,6 +79,9 @@ class Question {
 
   /// 题目解释
   final String analysis;
+
+  /// 是否收藏（扩展字段，仅限用户有登录时获取）
+  bool isCollected;
 
   /// 用户选项
   List<int> userChoices;
@@ -148,6 +152,10 @@ class Question {
     }
   }
 
+  void toggleCollect([bool flag]) {
+    isCollected = flag ?? !isCollected;
+  }
+
   Map<String, dynamic> toJson() => {
         'qid': qid,
         'type': type.index,
@@ -160,6 +168,7 @@ class Question {
         'userChoices': userChoices,
         'userBlank': userBlank,
         'analysis': analysis,
+        'isCollected': isCollected
       };
 
   @override
@@ -175,6 +184,7 @@ class Question {
     sb.write('"userChoices":$userChoices,\n');
     sb.write('"userBlank":`$userBlank`,\n');
     sb.write('"analysis":`$analysis`,\n');
+    sb.write('"isCollected":`$isCollected`,\n');
     return sb.toString();
   }
 }

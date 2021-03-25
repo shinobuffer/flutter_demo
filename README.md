@@ -13,6 +13,8 @@ icon查询-https://material.io/resources/icons/?style=baseline
 `flutter-swiper`-轮播图-https://github.com/best-flutter/flutter_swiper/blob/master/README-ZH.md
 `flutter-markdown`-markdown解析-
 
+打包签名-https://www.jianshu.com/p/58cdba2e5942
+路由监听-https://blog.csdn.net/z591102/article/details/105967257/
 // 类变量顺序：
 // 构造函数
 // 静态变量
