@@ -85,9 +85,11 @@ class ColorM {
   static const G1 = Color(0xFF70B603);
   static const G2 = Color(0xFF55B9B0); // 52B6AD
   static const G3 = Color(0xFF7DCAC2);
+  static const G4 = Color(0xFFE5F4F3);
   //红
   static const R1 = Color(0xFFEC808D);
   static const R2 = Color(0xFFFF7D7D);
+  static const R3 = Color(0xFFFFE7E7);
 
   // 其他颜色
   static const O1 = Color(0xFFFACD91);

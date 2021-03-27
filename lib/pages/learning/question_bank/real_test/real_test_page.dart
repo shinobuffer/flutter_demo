@@ -33,11 +33,20 @@ class _RealTestPageState extends State<RealTestPage> with SearchBoxMixin {
       subjectId: subjectId,
       isFree: true,
     );
-    setState(() {
-      List<Map<String, dynamic>> testInfosJson = resp.data;
-      testInfos = testInfosJson.map((json) => TestInfo.fromJson(json)).toList();
-      curTestInfos = testInfos;
-    });
+    List<Map<String, dynamic>> testInfosJson = resp.data;
+    testInfos = testInfosJson.map((json) => TestInfo.fromJson(json)).toList();
+    if (curSearch.isEmpty) {
+      // 页面初始化，不考虑搜索过滤；不带过滤的页面刷新
+      setState(() {
+        curTestInfos = testInfos;
+      });
+    } else {
+      // 页面刷新，考虑过滤
+      setState(() {
+        curTestInfos =
+            testInfos.where((info) => info.name.contains(curSearch)).toList();
+      });
+    }
   }
 
   /// 取消搜索，恢复数据

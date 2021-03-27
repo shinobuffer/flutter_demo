@@ -161,6 +161,7 @@ class _TestResultPageState extends State<TestResultPage> {
           wrongItem: WrongItem(
             name: recordItem.name,
             tid: recordItem.tid,
+            subjectId: recordItem.subjectId,
             questionIds: _questions.map((question) => question.qid).toList(),
           ),
           freshQuestions: _questions,

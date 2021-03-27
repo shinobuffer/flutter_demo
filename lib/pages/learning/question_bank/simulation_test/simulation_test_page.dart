@@ -40,17 +40,30 @@ class _SimulationTestPageState extends State<SimulationTestPage>
       subjectId: subjectId,
       isFree: false,
     );
-    setState(() {
-      List<Map<String, dynamic>> testInfosJson = resp.data;
-      List<TestInfo> testInfos =
-          testInfosJson.map((json) => TestInfo.fromJson(json)).toList();
-      purchasedTestInfos =
-          testInfos.where((testInfo) => testInfo.isPurchased).toList();
-      curPurchasedTestInfos = purchasedTestInfos;
-      moreTestInfos =
-          testInfos.where((testInfo) => !testInfo.isPurchased).toList();
-      curMoreTestInfos = moreTestInfos;
-    });
+    List<Map<String, dynamic>> testInfosJson = resp.data;
+    List<TestInfo> testInfos =
+        testInfosJson.map((json) => TestInfo.fromJson(json)).toList();
+    purchasedTestInfos =
+        testInfos.where((testInfo) => testInfo.isPurchased).toList();
+    moreTestInfos =
+        testInfos.where((testInfo) => !testInfo.isPurchased).toList();
+    if (curSearch.isEmpty) {
+      // 页面初始化，不考虑搜索过滤；不带过滤的页面刷新
+      setState(() {
+        curPurchasedTestInfos = purchasedTestInfos;
+        curMoreTestInfos = moreTestInfos;
+      });
+    } else {
+      // 页面刷新，考虑过滤
+      setState(() {
+        curPurchasedTestInfos = purchasedTestInfos
+            .where((info) => info.name.contains(curSearch))
+            .toList();
+        curMoreTestInfos = moreTestInfos
+            .where((info) => info.name.contains(curSearch))
+            .toList();
+      });
+    }
   }
 
   /// 取消搜索，恢复数据

@@ -2,6 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter_demo/utils/dio_util.dart';
 
+// 实现将 [0,1,2] 转化为 A,B,C（顺便升序排序）
+_choiceIndexes2choiceString(List<int> choices) {
+  List<String> alterChoices =
+      choices.map((index) => String.fromCharCodes([65 + index])).toList();
+  alterChoices.sort((a, b) => a.compareTo(b));
+  return alterChoices.join(',');
+}
+
 class ApiService {
   static DioUtil dio;
 
@@ -180,5 +188,94 @@ class ApiService {
       resp.msg,
       resp.data?.cast<Map<String, dynamic>>(),
     );
+  }
+
+  /// 获取错题列表
+  static Future<Resp<List<Map<String, dynamic>>>> getWrongItemsBySubjectId(
+    int subjectId,
+  ) async {
+    Resp resp = await dio.fetch(
+      '/sheet/mistake',
+      queryParameters: {'subjectId': subjectId},
+    );
+    resp.data = jsonDecode(resp.data ?? '[]');
+    return Resp(
+      resp.status,
+      resp.code,
+      resp.msg,
+      resp.data?.cast<Map<String, dynamic>>(),
+    );
+  }
+
+  /// 批量增加错题
+  static Future<Resp<Null>> addWrongQuestions({
+    int tid,
+    int subjectId,
+    Map<int, List<int>> answerMap,
+  }) async {
+    Resp<Null> resp = await dio.post(
+      '/sheet/mistake',
+      data: {
+        'sheetId': tid,
+        'subjectId': subjectId,
+        'mistakeMap': answerMap.map(
+          (key, value) => MapEntry(
+            key.toString(),
+            _choiceIndexes2choiceString(value),
+          ),
+        ),
+      },
+    );
+    return resp;
+  }
+
+  /// 删除单条错题
+  static Future<Resp<Null>> removeWrongQuestion(int qid) async {
+    Resp<Null> resp = await dio.delete(
+      '/sheet/mistakes/$qid',
+    );
+    return resp;
+  }
+
+  /// 获取收藏列表
+  static Future<Resp<List<Map<String, dynamic>>>> getCollectItemsBySubjectId(
+    int subjectId,
+  ) async {
+    Resp resp = await dio.fetch(
+      '/sheet/collection',
+      queryParameters: {'subjectId': subjectId},
+    );
+    resp.data = jsonDecode(resp.data ?? '[]');
+    return Resp(
+      resp.status,
+      resp.code,
+      resp.msg,
+      resp.data?.cast<Map<String, dynamic>>(),
+    );
+  }
+
+  /// 收藏单条题目
+  static Future<Resp<Null>> addCollectedQuestion({
+    int tid,
+    int subjectId,
+    int qid,
+  }) async {
+    Resp<Null> resp = await dio.post(
+      '/sheet/collection',
+      data: {
+        'sheetId': tid,
+        'subjectId': subjectId,
+        'questionId': qid,
+      },
+    );
+    return resp;
+  }
+
+  /// 删除单条收藏
+  static Future<Resp<Null>> removeCollectedQuestion(int qid) async {
+    Resp<Null> resp = await dio.delete(
+      '/sheet/collection/$qid',
+    );
+    return resp;
   }
 }

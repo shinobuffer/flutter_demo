@@ -13,11 +13,15 @@ class QuestionPageView extends StatefulWidget {
     Key key,
     @required this.pageType,
     @required this.question,
+    this.onChoiceSelected,
   }) : super(key: key);
 
   final Question question;
 
   final QuestionPageViewTypes pageType;
+
+  /// 选择题选择后的行为（如自动下一页）
+  final VoidCallback onChoiceSelected;
 
   bool get isDoQuestion => pageType == QuestionPageViewTypes.doQuestion;
   bool get isWrongQuestion => pageType == QuestionPageViewTypes.wrongQuestion;
@@ -37,6 +41,36 @@ class _QuestionPageViewState extends State<QuestionPageView> {
   String _ints2Char(List<int> indexes) {
     if (indexes.isEmpty) return '未答';
     return indexes.map((int index) => _int2Char(index)).join(',');
+  }
+
+  /// 获取选中项颜色
+  Color getSelectedColor([int index = -1]) {
+    if (widget.isDoQuestion) {
+      return ColorM.G4;
+    } else if (question.isSingleChoice) {
+      // 单选题，选对就绿，选错就红
+      return question.isCorrect ? ColorM.G4 : ColorM.R3;
+    } else if (question.isMultiChoice) {
+      // 多选题，选对就绿，选错就红
+      return question.correctChoices.contains(index) ? ColorM.G4 : ColorM.R3;
+    }
+    return ColorM.G4;
+  }
+
+  /// 点击选项行为
+  void onTapChoice(int index) {
+    setState(() {
+      if (question.isMultiChoice) {
+        question.revertChoice(index);
+      } else if (question.isFill && question.containChoice(index)) {
+        question.revertChoice(index);
+      } else {
+        question
+          ..clearChoice()
+          ..addChoice(index);
+        if (widget.onChoiceSelected != null) widget.onChoiceSelected();
+      }
+    });
   }
 
   /// 渲染答题区
@@ -66,18 +100,8 @@ class _QuestionPageViewState extends State<QuestionPageView> {
             dense: true,
             enabled: widget.isDoQuestion,
             selected: question.containChoice(index),
-            selectedTileColor: Color(0xFFE5F4F3),
-            onTap: () => setState(() {
-              if (question.isMultiChoice) {
-                question.revertChoice(index);
-              } else if (question.isFill && question.containChoice(index)) {
-                question.revertChoice(index);
-              } else {
-                question
-                  ..clearChoice()
-                  ..addChoice(index);
-              }
-            }),
+            selectedTileColor: getSelectedColor(index),
+            onTap: () => onTapChoice(index),
           );
         },
       );
@@ -166,6 +190,16 @@ class _QuestionPageViewState extends State<QuestionPageView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 填空题和简答题显示答案
+            if (!question.isChoiceQuestion) ...[
+              Text(
+                '答案',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Divider(height: 6),
+              Text('${question.correctBlank ?? "无"}'),
+              SizedBox(height: 10),
+            ],
             Text(
               '题目解析',
               style: TextStyle(fontWeight: FontWeight.bold),

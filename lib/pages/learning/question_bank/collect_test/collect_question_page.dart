@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/component/loading_first_screen.dart';
 import 'package:flutter_demo/model/collect_item.dart';
 import 'package:flutter_demo/model/question.dart';
 import 'package:flutter_demo/pages/learning/question_bank/component/question_page_view.dart';
 import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/style_util.dart';
+import 'package:flutter_demo/utils/toast_util.dart';
 
 class CollectQuestionPage extends StatefulWidget {
   CollectQuestionPage({
@@ -30,13 +32,16 @@ class _CollectQuestionPageState extends State<CollectQuestionPage> {
   final List<int> removedQuestionIds = [];
 
   final PageController _pageController = PageController(initialPage: 0);
+
   int _curIndex = 0;
-  int get _curQuestionId => questions[_curIndex].qid;
+
   int get _curPage => _curIndex + 1;
   int get _pageNum => collectItem.questionIds.length;
   bool get _isEndPage => _curPage == _pageNum;
 
-  /// todo 首屏数据初始化，通过collectItem中的qids拉取收藏questions
+  Future<void> initFuture;
+
+  /// 首屏数据初始化，通过collectItem中的qids拉取收藏questions
   Future<void> initData() async {
     // 收藏夹跳转而来，拉取questions
     print('[COLLECT QUESTIONS FROM COLLECT<tid:${collectItem.tid}>]');
@@ -50,15 +55,35 @@ class _CollectQuestionPageState extends State<CollectQuestionPage> {
     });
   }
 
-  /// todo: 收藏状态反转，发送请求
-  void toggleCollect(int questionId) {
-    if (removedQuestionIds.contains(questionId)) {
-      setState(() {
-        removedQuestionIds.remove(questionId);
+  /// 收藏状态反转，发送请求
+  void toggleCollect(Question curQuestion) {
+    if (curQuestion.isCollected) {
+      // 移除收藏
+      ApiService.removeCollectedQuestion(
+        curQuestion.qid,
+      ).then((resp) {
+        ToastUtil.showText(text: resp.msg);
+        if (resp.isSucc) {
+          setState(() {
+            curQuestion.toggleCollect();
+            removedQuestionIds.add(curQuestion.qid);
+          });
+        }
       });
     } else {
-      setState(() {
-        removedQuestionIds.add(questionId);
+      // 添加收藏
+      ApiService.addCollectedQuestion(
+        tid: collectItem.tid,
+        subjectId: collectItem.subjectId,
+        qid: curQuestion.qid,
+      ).then((resp) {
+        ToastUtil.showText(text: resp.msg);
+        if (resp.isSucc) {
+          setState(() {
+            curQuestion.toggleCollect();
+            removedQuestionIds.remove(curQuestion.qid);
+          });
+        }
       });
     }
   }
@@ -101,6 +126,7 @@ class _CollectQuestionPageState extends State<CollectQuestionPage> {
 
   /// 渲染底部菜单
   Widget _getBottomBar() {
+    Question curQuestion = questions[_curIndex];
     return Container(
       height: 40,
       padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -115,16 +141,16 @@ class _CollectQuestionPageState extends State<CollectQuestionPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  removedQuestionIds.contains(_curQuestionId)
-                      ? Icons.redo_rounded
-                      : Icons.delete_outline_rounded,
+                  curQuestion.isCollected
+                      ? Icons.delete_outline_rounded
+                      : Icons.redo_rounded,
                 ),
                 Text(
-                  removedQuestionIds.contains(_curQuestionId) ? '取消收藏' : '收藏',
+                  curQuestion.isCollected ? '取消收藏' : '恢复收藏',
                 ),
               ],
             ),
-            onPressed: () => toggleCollect(_curQuestionId),
+            onPressed: () => toggleCollect(curQuestion),
           ),
           SizedBox(width: 15),
           Expanded(
@@ -145,7 +171,7 @@ class _CollectQuestionPageState extends State<CollectQuestionPage> {
   @override
   void initState() {
     super.initState();
-    initData();
+    initFuture = initData();
   }
 
   @override
@@ -168,33 +194,37 @@ class _CollectQuestionPageState extends State<CollectQuestionPage> {
           ],
           elevation: 0,
         ),
-        body: Container(
-          height: double.maxFinite,
-          width: double.maxFinite,
-          child: Column(
-            children: [
-              _getTitle(),
-              // 题目区域
-              Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  children: questions
-                      .map(
-                        (q) => QuestionPageView(
-                          pageType: QuestionPageViewTypes.collection,
-                          question: q,
-                        ),
-                      )
-                      .toList(),
-                  onPageChanged: (index) {
-                    setState(() {
-                      _curIndex = index;
-                    });
-                  },
+        body: LoadingFirstScreen(
+          future: initFuture,
+          body: Container(
+            height: double.maxFinite,
+            width: double.maxFinite,
+            child: Column(
+              children: [
+                _getTitle(),
+                // 题目区域
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    children: questions
+                        .map(
+                          (q) => QuestionPageView(
+                            pageType: QuestionPageViewTypes.collection,
+                            question: q,
+                          ),
+                        )
+                        .toList(),
+                    onPageChanged: (index) {
+                      setState(() {
+                        _curIndex = index;
+                      });
+                    },
+                  ),
                 ),
-              ),
-              _getBottomBar(),
-            ],
+                // 当还未初始化时，不渲染菜单
+                if (questions.isNotEmpty) _getBottomBar(),
+              ],
+            ),
           ),
         ),
       ),

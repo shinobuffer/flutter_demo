@@ -2,12 +2,14 @@ class WrongItem {
   WrongItem({
     this.tid,
     this.name,
+    this.subjectId,
     this.questionIds,
   });
 
   WrongItem.fromJson(Map<String, dynamic> json)
-      : tid = json['tid'],
+      : tid = json['tid'] ?? json['sheetId'],
         name = json['name'],
+        subjectId = json['subjectId'],
         questionIds = json['questionIds']?.cast<int>() ?? [];
 
   /// 试卷编号
@@ -15,6 +17,9 @@ class WrongItem {
 
   /// 试卷标题
   final String name;
+
+  /// 试卷科目id
+  final int subjectId;
 
   /// 错题编号集
   final List<int> questionIds;
@@ -24,6 +29,7 @@ class WrongItem {
     StringBuffer sb = new StringBuffer('\n==========>WrongItem<==========\n');
     sb.write('"tid":$tid,\n');
     sb.write('"name":`$name`,\n');
+    sb.write('"subjectId":$subjectId,\n');
     sb.write('"questionIds":$questionIds,\n');
     return sb.toString();
   }

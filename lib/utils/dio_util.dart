@@ -246,6 +246,27 @@ class DioUtil {
       queryParameters: queryParameters,
       method: 'PUT',
       options: checkOptions('PUT', options),
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+    );
+  }
+
+  /// delete方法封装
+  Future<Resp<T>> delete<T>(
+    String path, {
+    data,
+    Map<String, dynamic> queryParameters,
+    Options options,
+    CancelToken cancelToken,
+    ProgressCallback onSendProgress,
+  }) async {
+    return request(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      method: 'DELETE',
+      options: checkOptions('DELETE', options),
+      cancelToken: cancelToken,
       onSendProgress: onSendProgress,
     );
   }
