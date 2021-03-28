@@ -10,7 +10,19 @@ class WrongItem {
       : tid = json['tid'] ?? json['sheetId'],
         name = json['name'],
         subjectId = json['subjectId'],
-        questionIds = json['questionIds']?.cast<int>() ?? [];
+        questionIds = json['questionIds']?.cast<int>() ?? [] {
+    Map<String, String> mistakeMap =
+        (json['mistakeMap']?.cast<String, String>() ?? {})
+            as Map<String, String>;
+    // 将 {"2":"A,B"} 转换为 {2:[0,1]}
+    questionIds = mistakeMap.keys.map((key) => int.parse(key)).toList();
+    _answerMap = mistakeMap.map(
+      (key, value) => MapEntry(
+        int.tryParse(key) ?? -1,
+        value.replaceAll(',', '').codeUnits.map((e) => e - 65).toList(),
+      ),
+    );
+  }
 
   /// 试卷编号
   final int tid;
@@ -22,7 +34,12 @@ class WrongItem {
   final int subjectId;
 
   /// 错题编号集
-  final List<int> questionIds;
+  List<int> questionIds = [];
+
+  /// 用户错误选项
+  Map<int, List<int>> _answerMap = {};
+
+  Map<int, List<int>> get answerMap => _answerMap;
 
   @override
   String toString() {
@@ -31,6 +48,7 @@ class WrongItem {
     sb.write('"name":`$name`,\n');
     sb.write('"subjectId":$subjectId,\n');
     sb.write('"questionIds":$questionIds,\n');
+    sb.write('"answerMap":$answerMap\n');
     return sb.toString();
   }
 }

@@ -232,7 +232,7 @@ class ApiService {
   /// 删除单条错题
   static Future<Resp<Null>> removeWrongQuestion(int qid) async {
     Resp<Null> resp = await dio.delete(
-      '/sheet/mistakes/$qid',
+      '/sheet/mistake/$qid',
     );
     return resp;
   }

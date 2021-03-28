@@ -36,7 +36,7 @@ class _CollectQuestionPageState extends State<CollectQuestionPage> {
   int _curIndex = 0;
 
   int get _curPage => _curIndex + 1;
-  int get _pageNum => collectItem.questionIds.length;
+  int get _pageNum => questions.length;
   bool get _isEndPage => _curPage == _pageNum;
 
   Future<void> initFuture;
