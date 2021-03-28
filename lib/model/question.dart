@@ -12,7 +12,6 @@ const List<String> QuestionStrTypes = ['单选题', '多选题', '填空题', '�
 class Question {
   Question(Map<String, dynamic> json)
       : assert(json['qid'] is int || json['questionId'] is int),
-        // todo: 暂时撤离保护
         // assert(json['chapter'] is String),
         // assert(json['chapterId'] is int),
         assert(json['content'] is String),

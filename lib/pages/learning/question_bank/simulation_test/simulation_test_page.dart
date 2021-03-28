@@ -23,7 +23,7 @@ class _SimulationTestPageState extends State<SimulationTestPage>
     with SearchBoxMixin, RouteAware {
   String get subject => widget.arguments['subject'] as String;
   int get subjectId => widget.arguments['subjectId'] as int;
-  // todo: 拉取已购和未购试题信息 purchasedTestInfos、moreTestInfos
+
   List<TestInfo> purchasedTestInfos = [];
 
   List<TestInfo> moreTestInfos = [];

@@ -83,8 +83,6 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
   String get testDescription =>
       testInfo?.description ?? recordItem?.description;
 
-  Question get _curQuestion => questions[_curIndex];
-
   int get _curPage => _curIndex + 1;
 
   int get _pageNum => questions.length;
@@ -114,28 +112,10 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
     print('[DOING TEST<tid:$tid>]');
     var resp = await ApiService.getQuestionsOfTest(tid);
     List<Map<String, dynamic>> questionsJson = resp.data;
-    // questionsJson
-    // [
-    //   {
-    //     'questionId': 114514,
-    //     'type': 0,
-    //     'chapter': '物质世界和实践——哲学概述',
-    //     'chapterId': 233,
-    //     'content': '在维可的回忆中，伊尔缪伊一共使用了多少个“欲望的摇篮”？',
-    //     'choices': ['两个', '三个', '四个', '五个'],
-    //     'correctChoices': [0],
-    //     'correctBlank': null,
-    //     'analysis': '无解析',
-    //   },
-    // ];
     if (isFromRecord) {
-      //todo 如果是继续做题，通过rid获取answerMap，跟questionsJson合并
-      Map<int, List<int>> answerMap = {
-        25: [2],
-        26: [2],
-        27: [2],
-        28: [2],
-      };
+      // 如果是继续做题，通过rid获取answerMap，跟questionsJson合并
+      Map<int, List<int>> answerMap =
+          (await ApiService.getAnswerMapOfRecord(recordItem.rid)).data;
       questionsJson.forEach((q) {
         if (q['type'] < 2) {
           int qid = q['questionId'];
@@ -165,6 +145,19 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
         _costSeconds++;
       });
     });
+  }
+
+  /// 生成answerMap，用于保存用户选项
+  Map<int, List<int>> getAnswerMap() {
+    Map<int, List<int>> answerMap = {};
+    questions.forEach((question) {
+      if (question.isChoiceQuestion) {
+        answerMap.putIfAbsent(question.qid, () => question.userChoices);
+      } else {
+        answerMap.putIfAbsent(question.qid, () => []);
+      }
+    });
+    return answerMap;
   }
 
   /// 开始弹框，对于新做的题，初始化计数，提示开始做题
@@ -210,7 +203,6 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
       onOk: () => Navigator.pop(context, true),
     );
     if (confirmed is bool && confirmed) {
-      // todo: 退出保存记录
       RecordItem generatedRecordItem = RecordItem(
         rid: recordItem?.rid,
         costSeconds: _costSeconds,
@@ -224,6 +216,16 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
         doneNum: questions.where((q) => q.isChoiceQuestion && q.isFill).length,
         questionNum: questions.where((q) => q.isChoiceQuestion).length,
       );
+      Map<int, List<int>> answerMap = getAnswerMap();
+      // 退出保存记录
+      ApiService.postRecord(
+        recordItem: generatedRecordItem,
+        answerMap: answerMap,
+      ).then((resp) {
+        if (!resp.isSucc) {
+          ToastUtil.showText(text: resp.msg);
+        }
+      });
       Navigator.pop(context);
     }
     return confirmed;
@@ -236,9 +238,9 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
       backgroundColor: ColorM.C1,
       body: AnswerCard(
         questions: questions,
-        // todo: 提交试卷，跳转结果，记录本次测试，做题累计（科目和总计）
-        onSubmit: () {
-          // 生成/更新记录并上交保存
+        // 提交试卷，跳转结果，记录本次测试，做题数据统计
+        onSubmit: () async {
+          // 生成记录，用于生成/更新记录
           int choiceQuestionNum =
               questions.where((q) => q.isChoiceQuestion).length;
           int correctChoiceQuestionNum =
@@ -256,8 +258,38 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
             doneNum:
                 questions.where((q) => q.isChoiceQuestion && q.isFill).length,
             questionNum: choiceQuestionNum,
-            correctRate: correctChoiceQuestionNum * 100 ~/ choiceQuestionNum,
+            // 如果没有选择题，正确率设为100%
+            correctRate: choiceQuestionNum == 0
+                ? 100
+                : correctChoiceQuestionNum * 100 ~/ choiceQuestionNum,
           );
+          Map<int, List<int>> answerMap = getAnswerMap();
+
+          // 生成错题的answerMap，用于提交错题
+          Map<int, List<int>> wrongAnswerMap = {};
+          questions.forEach((question) {
+            if (question.isChoiceQuestion && !question.isCorrect) {
+              wrongAnswerMap.putIfAbsent(
+                  question.qid, () => question.userChoices);
+            }
+          });
+
+          // 提交错题和记录
+          Future.wait([
+            ApiService.addWrongQuestions(
+              tid: testInfo?.tid ?? recordItem?.tid,
+              subjectId: testInfo?.subjectId ?? recordItem?.subjectId,
+              answerMap: wrongAnswerMap,
+            ),
+            ApiService.postRecord(
+              recordItem: generatedRecordItem,
+              answerMap: answerMap,
+            ),
+          ]).then((resps) {
+            if (resps.any((resp) => !resp.isSucc))
+              ToastUtil.showText(text: '保存记录失败');
+          });
+
           // 移除做题路由，推入试卷结果路由
           Navigator.pushAndRemoveUntil(
             context,
@@ -285,20 +317,51 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
 
   /// 弹出纠错反馈
   void popCorrectFeedback() async {
+    Question curQuestion = questions[_curIndex];
     await showBottomModal(
       context: context,
       backgroundColor: Colors.transparent,
       dismissible: false,
       dragable: false,
       body: CorrectionFeedback(
-        name: _curQuestion.content,
-        qid: _curQuestion.qid,
+        name: curQuestion.content,
+        qid: curQuestion.qid,
       ),
     );
   }
 
-  /// todo: 收藏题目
-  void toggleCollect() {}
+  /// 收藏题目
+  void toggleCollect(Question curQuestion) {
+    if (curQuestion.isCollected) {
+      // 移除收藏
+      ApiService.removeCollectedQuestion(
+        curQuestion.qid,
+      ).then((resp) {
+        if (!resp.isSucc) {
+          ToastUtil.showText(text: '移除收藏失败');
+        } else {
+          setState(() {
+            curQuestion.toggleCollect();
+          });
+        }
+      });
+    } else {
+      // 添加收藏
+      ApiService.addCollectedQuestion(
+        tid: testInfo?.tid ?? recordItem?.tid,
+        subjectId: testInfo?.subjectId ?? recordItem?.subjectId,
+        qid: curQuestion.qid,
+      ).then((resp) {
+        if (!resp.isSucc) {
+          ToastUtil.showText(text: '添加收藏失败');
+        } else {
+          setState(() {
+            curQuestion.toggleCollect();
+          });
+        }
+      });
+    }
+  }
 
   /// 下一题
   void doNext() {
@@ -367,6 +430,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
 
   /// 渲染底部菜单
   Widget _getBottomBar() {
+    Question curQuestion = questions[_curIndex];
     return Container(
       height: 40,
       padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -382,11 +446,15 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.star_outline_rounded),
-                  Text('收藏'),
+                  Icon(
+                    curQuestion.isCollected
+                        ? Icons.star_rounded
+                        : Icons.star_outline_rounded,
+                  ),
+                  Text(curQuestion.isCollected ? '已收藏' : '收藏'),
                 ],
               ),
-              onPressed: toggleCollect,
+              onPressed: () => toggleCollect(curQuestion),
             ),
           ),
           SizedBox(width: 14),
@@ -451,6 +519,7 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
                         (q) => QuestionPageView(
                           pageType: QuestionPageViewTypes.doQuestion,
                           question: q,
+                          onChoiceSelected: doNext,
                         ),
                       )
                       .toList(),
@@ -461,7 +530,8 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
                   },
                 ),
               ),
-              _getBottomBar(),
+              // 当还未初始化时，不渲染菜单
+              if (questions.isNotEmpty) _getBottomBar(),
             ],
           ),
         ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_demo/model/record_item.dart';
 import 'package:flutter_demo/utils/dio_util.dart';
 
 // 实现将 [0,1,2] 转化为 A,B,C（顺便升序排序）
@@ -8,6 +9,10 @@ _choiceIndexes2choiceString(List<int> choices) {
       choices.map((index) => String.fromCharCodes([65 + index])).toList();
   alterChoices.sort((a, b) => a.compareTo(b));
   return alterChoices.join(',');
+}
+
+_choiceString2choiceIndexes(String choices) {
+  return choices.replaceAll(',', '').codeUnits.map((e) => e - 65).toList();
 }
 
 class ApiService {
@@ -277,5 +282,82 @@ class ApiService {
       '/sheet/collection/$qid',
     );
     return resp;
+  }
+
+  /// 新增或更新记录
+  static Future<Resp<Null>> postRecord({
+    RecordItem recordItem,
+    Map<int, List<int>> answerMap,
+  }) async {
+    Map<String, dynamic> data = recordItem.toJson();
+    data.putIfAbsent(
+      'choiceMap',
+      () => answerMap.map(
+        (key, value) => MapEntry(
+          key.toString(),
+          _choiceIndexes2choiceString(value),
+        ),
+      ),
+    );
+    Resp<Null> resp;
+    if (recordItem.rid == null) {
+      print('创建Record');
+      resp = await dio.post(
+        '/sheet/record',
+        data: data,
+      );
+    } else {
+      print('更新Record');
+      resp = await dio.put(
+        '/sheet/record',
+        data: data,
+      );
+    }
+    return resp;
+  }
+
+  /// 获取记录列表
+  static Future<Resp<List<Map<String, dynamic>>>> getRecordItemsBySubjectId(
+    int subjectId,
+  ) async {
+    Resp resp = await dio.fetch(
+      '/sheet/record',
+      queryParameters: {'subjectId': subjectId},
+    );
+    resp.data = jsonDecode(resp.data ?? '[]');
+    return Resp(
+      resp.status,
+      resp.code,
+      resp.msg,
+      resp.data?.cast<Map<String, dynamic>>(),
+    );
+  }
+
+  /// 删除单条记录
+  static Future<Resp<Null>> removeRecord(int rid) async {
+    Resp<Null> resp = await dio.delete(
+      '/sheet/record/$rid',
+    );
+    return resp;
+  }
+
+  /// 获取记录answerMap
+  static Future<Resp<Map<int, List<int>>>> getAnswerMapOfRecord(int rid) async {
+    Resp<Map<String, dynamic>> resp = await dio.fetch(
+      '/sheet/record/answer',
+      queryParameters: {'recordId': rid},
+    );
+    resp.data ??= {};
+    return Resp(
+      resp.status,
+      resp.code,
+      resp.msg,
+      resp.data.map(
+        (key, value) => MapEntry(
+          int.tryParse(key) ?? -1,
+          _choiceString2choiceIndexes(value),
+        ),
+      ),
+    );
   }
 }

@@ -1,3 +1,5 @@
+import 'package:flutter_demo/utils/format_util.dart';
+
 class RecordItem {
   /// 不包含answerMap
   RecordItem({
@@ -13,18 +15,22 @@ class RecordItem {
     this.doneNum,
     this.questionNum,
     this.correctRate = 0,
-  });
+  }) {
+    _lastCompleteTime = DateUtil.formatDateMs(
+        timeStamp ?? DateTime.now().millisecondsSinceEpoch);
+  }
 
   RecordItem.fromJson(Map<String, dynamic> json)
-      : rid = json['rid'],
+      : rid = json['rid'] ?? json['recordId'],
         costSeconds = json['costSeconds'],
         isCompleted = json['isCompleted'],
-        tid = json['tid'],
-        name = json['name'],
-        description = json['description'],
-        subject = json['subject'],
+        tid = json['tid'] ?? json['sheetId'],
+        name = json['name'] ?? json['sheetTitle'],
+        description = json['description'] ?? json['sheetDescription'],
+        subject = json['subject'] ?? json['sheetSubject'],
         subjectId = json['subjectId'],
         timeStamp = json['timeStamp'],
+        _lastCompleteTime = json['completeTime'],
         doneNum = json['doneNum'],
         questionNum = json['questionNum'],
         correctRate = json['correctRate'] ?? 0;
@@ -53,8 +59,13 @@ class RecordItem {
   /// 科目id
   final int subjectId;
 
-  /// 上次完成时间（ms时间戳）
+  /// 上次完成时间（ms时间戳，用于生成lastCompleteTime，仅在前端存储）
   final int timeStamp;
+
+  /// 上次完成时间（后端实际存储值）
+  String _lastCompleteTime;
+
+  String get lastCompleteTime => _lastCompleteTime;
 
   /// 完成题目数量（选择题）
   final int doneNum;
@@ -66,15 +77,12 @@ class RecordItem {
   final int correctRate;
 
   Map<String, dynamic> toJson() => {
-        'rid': rid,
-        'costSeconds': costSeconds,
-        'isCompleted': isCompleted,
-        'tid': tid,
-        'name': name,
-        'description': description,
-        'subject': subject,
+        'recordId': rid,
         'subjectId': subjectId,
-        'timeStamp': timeStamp,
+        'sheetId': tid,
+        'isCompleted': isCompleted,
+        'costSeconds': costSeconds,
+        'completeTime': lastCompleteTime,
         'doneNum': doneNum,
         'questionNum': questionNum,
         'correctRate': correctRate,
@@ -91,7 +99,7 @@ class RecordItem {
     sb.write('"description":`$description`,\n');
     sb.write('"subject":`$subject`,\n');
     sb.write('"subjectId":$subjectId,\n');
-    sb.write('"timeStamp":$timeStamp,\n');
+    sb.write('"lastCompleteTime":`$lastCompleteTime`,\n');
     sb.write('"doneNum":$doneNum,\n');
     sb.write('"questionNum":$questionNum,\n');
     sb.write('"correctRate":$correctRate,\n');

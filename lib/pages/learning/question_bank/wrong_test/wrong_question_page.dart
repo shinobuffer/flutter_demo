@@ -89,7 +89,7 @@ class _WrongQuestionPageState extends State<WrongQuestionPage> {
     }
   }
 
-  /// todo: 错题状态反转，发送请求
+  /// 错题状态反转，发送请求
   void toggleWrong(Question curQuestion) {
     if (!removedQuestionIds.contains(curQuestion.qid)) {
       ApiService.removeWrongQuestion(curQuestion.qid).then((resp) {

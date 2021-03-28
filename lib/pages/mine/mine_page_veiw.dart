@@ -214,7 +214,7 @@ class _MinePageViewState extends State<MinePageView> {
   }
 
   /// 渲染主体内容
-  /// todo: 跳转逻辑
+
   Widget _getMainContent() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/component/base/progress_bar.dart';
+import 'package:flutter_demo/component/loading_first_screen.dart';
 import 'package:flutter_demo/model/question.dart';
 import 'package:flutter_demo/model/record_item.dart';
 import 'package:flutter_demo/model/wrong_item.dart';
@@ -20,20 +21,6 @@ class TestResultPage extends StatefulWidget {
 
   /// 如果只有recordItem没有freshQuestions，需要通过tid拉取questions并合成
   final RecordItem recordItem;
-  // RecordItem.fromJson({
-  //   'rid': 233,
-  //   'costSeconds': 233,
-  //   'isCompleted': false,
-  //   'tid': 233,
-  //   'name': '2020年全国硕士研究生入学统一考试',
-  //   'description': '2020国考',
-  //   'subject': '政治',
-  //   'subjectId': 0,
-  //   'timeStamp': DateTime.now().millisecondsSinceEpoch,
-  //   'doneNum': 2,
-  //   'questionNum': 2,
-  //   'correctRate': 50,
-  // })
 
   @override
   _TestResultPageState createState() => _TestResultPageState();
@@ -46,13 +33,10 @@ class _TestResultPageState extends State<TestResultPage> {
     '未答': ColorM.C2,
   };
 
-  /// 题目初始化是否完成
-  bool isReady = false;
-
   List<Question> generatedQuestions = [];
 
   /// 题型下标分界点，用于划分题型
-  List<int> _breakPoints;
+  List<int> _breakPoints = [];
 
   RecordItem get recordItem => widget.recordItem;
 
@@ -80,14 +64,12 @@ class _TestResultPageState extends State<TestResultPage> {
   }
 
   /// 选择题总数量
-  int get choiceQuestionNum => recordItem.questionNum;
+  int get choiceQuestionNum =>
+      questions.where((q) => q.isChoiceQuestion).toList().length;
 
   /// 选择题正确总数量
-  int get correctChoiceQuestionNum => questions
-      .sublist(0, choiceQuestionNum)
-      .where((q) => q.isCorrect)
-      .toList()
-      .length;
+  int get correctChoiceQuestionNum =>
+      questions.where((q) => q.isChoiceQuestion && q.isCorrect).toList().length;
 
   /// 选择题正确率
   int get correctPercentage => recordItem.correctRate;
@@ -102,6 +84,8 @@ class _TestResultPageState extends State<TestResultPage> {
     return ColorM.R1;
   }
 
+  Future<void> initFuture;
+
   /// 首屏数据初始化
   /// 如果widget.freshQuestion为null（来自做题记录），通过recordItem中的tid拉取questions，通过recordItem中的rid拉取answerMap，合并得到最终questions
   /// 如果widget.freshQuestion非null（来自做题页面结算），直接使用freshQuestion，什么都不用干
@@ -110,15 +94,10 @@ class _TestResultPageState extends State<TestResultPage> {
       print('[FROM RECORD<rid:${recordItem.rid}>]');
       var resps = await Future.wait([
         ApiService.getQuestionsOfTest(recordItem.tid),
+        ApiService.getAnswerMapOfRecord(recordItem.rid),
       ]);
       List<Map<String, dynamic>> questionsJson = resps[0].data;
-      //  todo 通过rid获取answerMap，跟questionsJson合并
-      Map<int, List<int>> answerMap = {
-        25: [2],
-        26: [2],
-        27: [2],
-        28: [2],
-      };
+      Map<int, List<int>> answerMap = resps[1].data;
       questionsJson.forEach((q) {
         if (q['type'] < 2) {
           int qid = q['questionId'];
@@ -143,17 +122,12 @@ class _TestResultPageState extends State<TestResultPage> {
       }
     });
     setState(() {
-      isReady = true;
       _breakPoints = breakPoints..add(questions.length);
     });
   }
 
   /// 通用查看解析跳转
   void jumpAnalysis(List<Question> _questions, {int index = 0}) {
-    if (!isReady) {
-      ToastUtil.showText(text: '加载中请稍等');
-      return;
-    }
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -189,7 +163,7 @@ class _TestResultPageState extends State<TestResultPage> {
   void jumpWrongAnalysis() {
     List<Question> wrongQuestions =
         questions.where((q) => q.isChoiceQuestion && !q.isCorrect).toList();
-    if (wrongQuestions.isEmpty && isReady) {
+    if (wrongQuestions.isEmpty) {
       ToastUtil.showText(text: '太厉害了，全对没错题');
       return;
     }
@@ -447,7 +421,7 @@ class _TestResultPageState extends State<TestResultPage> {
   @override
   void initState() {
     super.initState();
-    initData();
+    initFuture = initData();
   }
 
   @override
@@ -458,26 +432,29 @@ class _TestResultPageState extends State<TestResultPage> {
         centerTitle: true,
         elevation: 0,
       ),
-      body: Container(
-        width: double.maxFinite,
-        color: Colors.white,
-        child: Column(
-          children: [
-            _getHeader(),
-            _getTitle(),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Container(
-                  width: double.maxFinite,
-                  color: Colors.white,
-                  child: Column(
-                    children: _getSections(),
+      body: LoadingFirstScreen(
+        future: initFuture,
+        body: Container(
+          width: double.maxFinite,
+          color: Colors.white,
+          child: Column(
+            children: [
+              _getHeader(),
+              _getTitle(),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Container(
+                    width: double.maxFinite,
+                    color: Colors.white,
+                    child: Column(
+                      children: _getSections(),
+                    ),
                   ),
                 ),
               ),
-            ),
-            _getBottomBar(),
-          ],
+              _getBottomBar(),
+            ],
+          ),
         ),
       ),
     );
