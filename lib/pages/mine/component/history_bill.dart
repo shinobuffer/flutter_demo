@@ -18,6 +18,10 @@ class HistoryBill extends StatefulWidget {
 }
 
 class _HistoryBillState extends State<HistoryBill> {
+  // 前后端统一定死
+  static const BCoinAlterationStrTypes = ['活动获取', 'B币充值', '兑换金瓜子', '购买试题'];
+  static const GSeedAlterationStrTypes = ['活动获取', '兑换金瓜子'];
+
   List<Map<String, dynamic>> histories = [];
   bool get isBCoin => widget.isBCoin;
 
@@ -76,13 +80,16 @@ class _HistoryBillState extends State<HistoryBill> {
                 separatorBuilder: (context, index) => Divider(height: 1),
                 itemBuilder: (context, index) {
                   Map<String, dynamic> history = histories[index];
-                  String title = history['type'].toString();
+                  String title = isBCoin
+                      ? BCoinAlterationStrTypes[history['type']]
+                      : GSeedAlterationStrTypes[history['type']];
                   String subTitle = history['createTime'];
                   int value = history['value'];
                   String vary = value > 0 ? '   +$value' : '   $value';
                   return ListTile(
                     title: Text(title),
                     subtitle: Text(subTitle),
+                    dense: true,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [

@@ -54,7 +54,7 @@ class _MinePageViewState extends State<MinePageView> {
                         ),
                       ),
                       Text(
-                        userInfo.nickName,
+                        userInfo.nickName.isEmpty ? '无名' : userInfo.nickName,
                         style: TextStyleM.D0_16_B,
                       )
                     ],

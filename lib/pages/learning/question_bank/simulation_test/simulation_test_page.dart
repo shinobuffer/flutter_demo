@@ -38,15 +38,19 @@ class _SimulationTestPageState extends State<SimulationTestPage>
   Future<void> initData() async {
     var resp = await ApiService.getTestInfosBySubjectId(
       subjectId: subjectId,
-      isFree: false,
+      isRealTest: false,
     );
     List<Map<String, dynamic>> testInfosJson = resp.data;
     List<TestInfo> testInfos =
         testInfosJson.map((json) => TestInfo.fromJson(json)).toList();
-    purchasedTestInfos =
-        testInfos.where((testInfo) => testInfo.isPurchased).toList();
-    moreTestInfos =
-        testInfos.where((testInfo) => !testInfo.isPurchased).toList();
+    // 已购买的试题包括已购买的和免费的
+    purchasedTestInfos = testInfos
+        .where((testInfo) => testInfo.isPurchased || testInfo.isFree)
+        .toList();
+    // 更多试题指未购买的收费试题
+    moreTestInfos = testInfos
+        .where((testInfo) => !testInfo.isPurchased && !testInfo.isFree)
+        .toList();
     if (curSearch.isEmpty) {
       // 页面初始化，不考虑搜索过滤；不带过滤的页面刷新
       setState(() {
@@ -100,7 +104,7 @@ class _SimulationTestPageState extends State<SimulationTestPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '已购试题',
+            '已有试题',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 10),

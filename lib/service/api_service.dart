@@ -147,13 +147,20 @@ class ApiService {
   }
 
   /// 获取真题/模拟试卷列表
-  static Future<Resp<List<Map<String, dynamic>>>> getTestInfosBySubjectId({
-    int subjectId,
-    bool isFree,
-  }) async {
+  static Future<Resp<List<Map<String, dynamic>>>> getTestInfosBySubjectId(
+      {int subjectId, bool isFree, bool isRealTest}) async {
+    Map<String, dynamic> queries = {
+      'subjectId': subjectId,
+    };
+    if (isRealTest != null) {
+      queries.putIfAbsent('isRealTest', () => isRealTest.toString());
+    }
+    if (isFree != null) {
+      queries.putIfAbsent('isFree', () => isFree.toString());
+    }
     Resp resp = await dio.fetch(
-      '/sheet/sheetList/${isFree ? "free" : "notFree"}',
-      queryParameters: {'subjectId': subjectId},
+      '/sheet/sheetList',
+      queryParameters: queries,
     );
     resp.data = jsonDecode(resp.data ?? '[]');
     return Resp(

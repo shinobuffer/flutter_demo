@@ -3,8 +3,10 @@ import 'package:flutter_demo/component/image_set.dart';
 import 'package:flutter_demo/model/test_info.dart';
 import 'package:flutter_demo/pages/learning/question_bank/do_question_page.dart';
 import 'package:flutter_demo/pages/learning/question_bank/test_purchase_page.dart';
+import 'package:flutter_demo/provide/global_provide.dart';
 import 'package:flutter_demo/utils/format_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
+import 'package:flutter_demo/utils/toast_util.dart';
 
 class TestInfoCard extends StatefulWidget {
   /// 用于展示试题信息的卡片，用在历年真题页面、模拟题页面和首页
@@ -66,6 +68,10 @@ class _TestInfoCardState extends State<TestInfoCard> {
             ),
           ),
           onPressed: () {
+            if (!getGlobalProvide(context).isLogin) {
+              ToastUtil.showText(text: '请先登录');
+              return;
+            }
             if (onJump != null) onJump();
             if (_isAccessible) {
               Navigator.push(

@@ -31,6 +31,7 @@ class _RealTestPageState extends State<RealTestPage> with SearchBoxMixin {
   Future<void> initData() async {
     var resp = await ApiService.getTestInfosBySubjectId(
       subjectId: subjectId,
+      isRealTest: true,
       isFree: true,
     );
     List<Map<String, dynamic>> testInfosJson = resp.data;

@@ -20,6 +20,17 @@ class QuestionBankPageView extends StatefulWidget {
 class _QuestionBankPageViewState extends State<QuestionBankPageView> {
   Statistics statistics = Statistics.fromJson({});
 
+  // 拉取科目相关统计数据（做题数，正确率，学习天数等）
+  Future<void> initData() async {
+    var resp = await ApiService.getStatisticsBySubjectId(widget.subjectId);
+    Map<String, dynamic> statisticsJson = resp.data;
+    if (resp.isSucc) {
+      setState(() {
+        statistics = Statistics.fromJson(statisticsJson);
+      });
+    }
+  }
+
   Widget _createGridViewItem(
     IconData icon,
     String title,
@@ -59,14 +70,14 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
             context,
             '/question_bank/real_test',
             arguments: arguments,
-          );
+          ).then((value) => initData());
         }),
         _createGridViewItem(Icons.library_books_rounded, '模拟题', () {
           Navigator.pushNamed(
             context,
             '/question_bank/simulation_test',
             arguments: arguments,
-          );
+          ).then((value) => initData());
         }),
         _createGridViewItem(Icons.dangerous, '错题集', () {
           Navigator.pushNamed(
@@ -93,18 +104,10 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
     );
   }
 
-  // todo: 拉取科目相关数据（做题数，正确率，学习天数等）
   @override
   void initState() {
     super.initState();
-    ApiService.getStatisticsBySubjectId(widget.subjectId).then((resp) {
-      Map<String, dynamic> statisticsJson = resp.data;
-      if (resp.isSucc) {
-        setState(() {
-          statistics = Statistics.fromJson(statisticsJson);
-        });
-      }
-    });
+    initData();
   }
 
   @override
