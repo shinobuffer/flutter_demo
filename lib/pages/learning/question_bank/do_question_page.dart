@@ -300,7 +300,8 @@ class _DoQuestionPageState extends State<DoQuestionPage> {
               ),
             ),
             (route) =>
-                route.settings?.name?.startsWith('/question_bank') ?? false,
+                (route.settings?.name?.startsWith('/question_bank') ?? false) ||
+                route.settings?.name == '/',
           );
         },
         onJump: (int index) {

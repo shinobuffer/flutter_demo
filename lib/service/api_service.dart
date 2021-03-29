@@ -20,8 +20,11 @@ class ApiService {
 
   /// 初始化必须调用
   ApiService.initialize() {
-    DioUtil.setBaseOptions(DioUtil.getBaseOptions()
-        .merge(baseUrl: 'http://103.145.60.199:9527/finaldesign'));
+    DioUtil.setBaseOptions(DioUtil.getBaseOptions().merge(
+      baseUrl: 'http://103.145.60.199:9527/finaldesign',
+      sendTimeout: 10000,
+      receiveTimeout: 10000,
+    ));
     DioUtil.enableDebug();
     dio = DioUtil();
   }
@@ -359,5 +362,15 @@ class ApiService {
         ),
       ),
     );
+  }
+
+  /// 获取记录统计数据
+  static Future<Resp<Map<String, dynamic>>> getStatisticsBySubjectId(
+      [int subjectId = 0]) async {
+    Resp<Map<String, dynamic>> resp = await dio.fetch(
+      '/sheet/record/total',
+      queryParameters: {'subjectId': subjectId},
+    );
+    return resp;
   }
 }

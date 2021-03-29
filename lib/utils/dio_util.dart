@@ -143,14 +143,20 @@ class DioUtil {
     CancelToken cancelToken,
     ProgressCallback onSendProgress,
   }) async {
-    Response response = await _dio.request(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: checkOptions(method, options),
-      cancelToken: cancelToken,
-      onSendProgress: onSendProgress,
-    );
+    Response response;
+    // 请求出错
+    try {
+      response = await _dio.request(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: checkOptions(method, options),
+        cancelToken: cancelToken,
+        onSendProgress: onSendProgress,
+      );
+    } catch (e) {
+      return Resp('net error', -233, e.toString(), null);
+    }
     if (_isDebug) {
       _printHttpLog(response);
     }

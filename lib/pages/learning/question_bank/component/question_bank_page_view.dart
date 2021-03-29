@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/model/statistics.dart';
+import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 
 class QuestionBankPageView extends StatefulWidget {
@@ -16,6 +18,8 @@ class QuestionBankPageView extends StatefulWidget {
 }
 
 class _QuestionBankPageViewState extends State<QuestionBankPageView> {
+  Statistics statistics = Statistics.fromJson({});
+
   Widget _createGridViewItem(
     IconData icon,
     String title,
@@ -43,7 +47,7 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
       'subject': widget.subject,
       'subjectId': widget.subjectId
     };
-    // todo: 逻辑填充
+    // 逻辑填充
     return GridView(
       physics: const NeverScrollableScrollPhysics(), //禁止滚动
       gridDelegate:
@@ -93,6 +97,14 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
   @override
   void initState() {
     super.initState();
+    ApiService.getStatisticsBySubjectId(widget.subjectId).then((resp) {
+      Map<String, dynamic> statisticsJson = resp.data;
+      if (resp.isSucc) {
+        setState(() {
+          statistics = Statistics.fromJson(statisticsJson);
+        });
+      }
+    });
   }
 
   @override
@@ -122,7 +134,7 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
                         Column(
                           children: [
                             Text(
-                              '2.3k',
+                              '${statistics.doneNumStr}',
                               style: TextStyleM.G1_24,
                             ),
                             Text('刷题数'),
@@ -130,9 +142,19 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
                         ),
                         Column(
                           children: [
-                            Text(
-                              '233H',
-                              style: TextStyleM.G1_24,
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '${statistics.costTimeStr}',
+                                    style: TextStyleM.G1_24,
+                                  ),
+                                  TextSpan(
+                                    text: '${statistics.costTimeUnit}',
+                                    style: TextStyleM.G1,
+                                  ),
+                                ],
+                              ),
                             ),
                             Text('做题时长'),
                           ],
@@ -142,7 +164,10 @@ class _QuestionBankPageViewState extends State<QuestionBankPageView> {
                             Text.rich(
                               TextSpan(
                                 children: [
-                                  TextSpan(text: '23', style: TextStyleM.G1_32),
+                                  TextSpan(
+                                    text: '${statistics.correctRateStr}',
+                                    style: TextStyleM.G1_24,
+                                  ),
                                   TextSpan(
                                     text: '%',
                                     style: TextStyleM.G1,

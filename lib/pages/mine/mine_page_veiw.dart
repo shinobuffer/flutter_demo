@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/model/statistics.dart';
 import 'package:flutter_demo/model/user_info.dart';
 import 'package:flutter_demo/provide/global_provide.dart';
+import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/screen_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +15,8 @@ class MinePageView extends StatefulWidget {
 }
 
 class _MinePageViewState extends State<MinePageView> {
+  Statistics statistics = Statistics.fromJson({});
+
   /// 渲染Header
   Widget _getHeader() {
     return Container(
@@ -109,7 +113,10 @@ class _MinePageViewState extends State<MinePageView> {
                 Text.rich(
                   TextSpan(
                     children: [
-                      TextSpan(text: '23', style: TextStyleM.O1_24),
+                      TextSpan(
+                        text: statistics.doneNumStr,
+                        style: TextStyleM.O1_24,
+                      ),
                       TextSpan(
                         text: '题',
                         style: TextStyleM.O1,
@@ -125,9 +132,12 @@ class _MinePageViewState extends State<MinePageView> {
                 Text.rich(
                   TextSpan(
                     children: [
-                      TextSpan(text: '23', style: TextStyleM.G0_24),
                       TextSpan(
-                        text: '小时',
+                        text: statistics.costTimeStr,
+                        style: TextStyleM.G0_24,
+                      ),
+                      TextSpan(
+                        text: statistics.costTimeUnit,
                         style: TextStyleM.G0,
                       ),
                     ],
@@ -141,7 +151,10 @@ class _MinePageViewState extends State<MinePageView> {
                 Text.rich(
                   TextSpan(
                     children: [
-                      TextSpan(text: '23', style: TextStyleM.G2_24),
+                      TextSpan(
+                        text: statistics.correctRateStr,
+                        style: TextStyleM.G2_24,
+                      ),
                       TextSpan(
                         text: '%',
                         style: TextStyleM.G2,
@@ -287,8 +300,16 @@ class _MinePageViewState extends State<MinePageView> {
 
   @override
   void initState() {
-    // todo: 拉取用户基本信息，资产信息，（总做题数，学习时长，正确率）
+    // 拉取用户基本信息，资产信息，（总做题数，学习时长，正确率）
     super.initState();
+    ApiService.getStatisticsBySubjectId().then((resp) {
+      Map<String, dynamic> statisticsJson = resp.data;
+      if (resp.isSucc) {
+        setState(() {
+          statistics = Statistics.fromJson(statisticsJson);
+        });
+      }
+    });
     getGlobalProvide(context).updateUserInfo();
   }
 

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/component/loading_first_screen.dart';
 import 'package:flutter_demo/model/test_info.dart';
 import 'package:flutter_demo/pages/learning/question_bank/component/test_info_card.dart';
 import 'package:flutter_demo/provide/global_provide.dart';
+import 'package:flutter_demo/service/api_service.dart';
 import 'package:flutter_demo/utils/format_util.dart';
 import 'package:flutter_demo/utils/style_util.dart';
+import 'package:sp_util/sp_util.dart';
 
 class LearningPageView extends StatefulWidget {
   LearningPageView({Key key}) : super(key: key);
@@ -21,38 +24,27 @@ class _LearningPageViewState extends State<LearningPageView> {
       .map((e) => today.add(Duration(days: e)))
       .toList();
 
-  List<TestInfo> recomTestInfos = [
-    TestInfo.fromJson({
-      'tid': 233,
-      'time': '2020-11-11',
-      'name': '2020年全国硕士研究生入学统一考试（政治）',
-      'description': '2020年考研政治',
-      'subject': '政治',
-      'subjectId': 233,
-      'publisher': '教育部',
-      'publisherId': 233,
-      'isFree': true,
-      'price': 0.0,
-      'isPurchased': false,
-      'questionNum': 50,
-      'doneNum': 2333,
-    }),
-    TestInfo.fromJson({
-      'tid': 233,
-      'time': '2020-11-11',
-      'name': '2020年全国硕士研究生入学统一考试（政治）',
-      'description': '2020年考研政治',
-      'subject': '政治',
-      'subjectId': 233,
-      'publisher': '教育部',
-      'publisherId': 233,
-      'isFree': false,
-      'price': 0.0,
-      'isPurchased': false,
-      'questionNum': 50,
-      'doneNum': 2333,
-    }),
-  ];
+  List<TestInfo> recomTestInfos = [];
+
+  Future<void> initFuture;
+
+  Future<void> initData() async {
+    List<Map<String, dynamic>> selectedSubjects =
+        SpUtil.getObjectList('selected_subjects')
+                ?.cast<Map<String, dynamic>>() ??
+            [
+              {'subjectId': 1, 'subject': '政治'}
+            ];
+    List<int> selectedSubjectIds =
+        selectedSubjects.map((e) => e['subjectId'] as int).toList();
+    var resp = await ApiService.getTestInfosBySubjectId(
+      subjectId: selectedSubjectIds.first,
+      isFree: true,
+    );
+    setState(() {
+      recomTestInfos = resp.data.map((e) => TestInfo.fromJson(e)).toList();
+    });
+  }
 
   // todo: 打卡
   void _doClockOn() {}
@@ -212,33 +204,42 @@ class _LearningPageViewState extends State<LearningPageView> {
     return Container(
       color: Colors.white,
       margin: EdgeInsets.only(top: 15),
-      child: Column(
-        children: [
-          Container(
-            width: double.maxFinite,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: ColorM.C1),
+      child: LoadingFirstScreen(
+        future: initFuture,
+        body: Column(
+          children: [
+            Container(
+              width: double.maxFinite,
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: ColorM.C1),
+                ),
+              ),
+              child: Text(
+                '推荐试题',
+                style: TextStyle(fontSize: 16),
               ),
             ),
-            child: Text(
-              '推荐试题',
-              style: TextStyle(fontSize: 16),
-            ),
-          ),
-          Expanded(
-            child: ListView.separated(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-              itemCount: recomTestInfos.length,
-              separatorBuilder: (context, index) => Divider(height: 1),
-              itemBuilder: (context, index) =>
-                  TestInfoCard(testInfo: recomTestInfos[index]),
-            ),
-          )
-        ],
+            Expanded(
+              child: ListView.separated(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+                itemCount: recomTestInfos.length,
+                separatorBuilder: (context, index) => Divider(height: 1),
+                itemBuilder: (context, index) =>
+                    TestInfoCard(testInfo: recomTestInfos[index]),
+              ),
+            )
+          ],
+        ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initFuture = initData();
   }
 
   @override
