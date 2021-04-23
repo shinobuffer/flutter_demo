@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/model/question.dart';
 import 'package:flutter_demo/utils/style_util.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 enum QuestionPageViewTypes {
   doQuestion,
@@ -61,10 +62,13 @@ class _QuestionPageViewState extends State<QuestionPageView> {
   void onTapChoice(int index) {
     setState(() {
       if (question.isMultiChoice) {
+        // 多选题，反转选项
         question.revertChoice(index);
       } else if (question.isFill && question.containChoice(index)) {
+        // 单选题，点击已选中的项，取消选中
         question.revertChoice(index);
       } else {
+        // 单选题，点击未选中的项，先清空后选中
         question
           ..clearChoice()
           ..addChoice(index);
@@ -90,18 +94,13 @@ class _QuestionPageViewState extends State<QuestionPageView> {
             ),
             title: Transform(
               transform: Matrix4.translationValues(-20, 0, 0),
-              child: Text(
-                question.choices[index],
-                maxLines: 2,
-                style: TextStyle(height: 1, fontSize: 15),
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: MarkdownBody(data: question.choices[index]),
             ),
             dense: true,
             enabled: widget.isDoQuestion,
-            selected: question.containChoice(index),
-            selectedTileColor: getSelectedColor(index),
-            onTap: () => onTapChoice(index),
+            selected: question.containChoice(index), // 选项是否被选中
+            selectedTileColor: getSelectedColor(index), // 选中颜色
+            onTap: () => onTapChoice(index), // 点击选项
           );
         },
       );
@@ -243,12 +242,10 @@ class _QuestionPageViewState extends State<QuestionPageView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${QuestionStrTypes[question.type.index]}',
+                      QuestionStrTypes[question.type.index],
                       style: TextStyleM.D1_12,
                     ),
-                    Text(
-                      '    ${question.content}${question.isMultiChoice ? "(多选)" : ""}',
-                    ),
+                    MarkdownBody(data: question.content)
                   ],
                 ),
               ),

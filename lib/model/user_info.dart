@@ -26,7 +26,7 @@ class UserInfo {
   int peeProfession;
 
   /// b币
-  int bCoin;
+  double bCoin;
 
   /// 金瓜子
   int gSeed;

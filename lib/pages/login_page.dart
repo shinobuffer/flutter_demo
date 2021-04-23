@@ -32,10 +32,10 @@ class _LoginPageState extends State<LoginPage> with UserPasswordMixin {
       setState(() {
         isLoging = true;
       });
-      ApiService.login(phone: user, password: password).then((resp) {
+      ApiService.login(phone: user, password: password).then((resp) async {
         ToastUtil.showText(text: resp.msg);
         if (resp.code == 0) {
-          getGlobalProvide(context).login(
+          await getGlobalProvide(context).login(
             accessToken: resp.data['jwt']['access_token'],
             refreshToken: resp.data['jwt']['refresh_token'],
             userInfo: resp.data['user'],
