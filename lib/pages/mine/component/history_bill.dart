@@ -84,7 +84,7 @@ class _HistoryBillState extends State<HistoryBill> {
                       ? BCoinAlterationStrTypes[history['type']]
                       : GSeedAlterationStrTypes[history['type']];
                   String subTitle = history['createTime'];
-                  int value = history['value'];
+                  var value = history['value'];
                   String vary = value > 0 ? '   +$value' : '   $value';
                   return ListTile(
                     title: Text(title),
